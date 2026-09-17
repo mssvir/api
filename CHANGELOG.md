@@ -9,7 +9,7 @@ The public API is served from `https://api.mssv.ir/v1/`.
 - Changed the canonical public Machine API base URL to `https://api.mssv.ir/v1/`.
 - Kept `/api/machine/v1` as a method-preserving HTTP `308` compatibility redirect to `/v1/`.
 - Standardized official website links to [www.mssv.ir](https://www.mssv.ir/).
-- Linked client-account and Machine API token management references to `https://my.mssv.ir/` and the relevant client-area routes.
+- Linked account-management references to the [MSSV client area](https://my.mssv.ir/) and API-token references to [Machine API token management](https://my.mssv.ir/machine-users/).
 - Added safe server-side intended-destination handling so customers return to the originally requested internal page after successful login and any required verification.
 - Updated the OpenAPI contract to remove the obsolete `429 RateLimited` response from the current no-RPM-limit Machine API policy.
 
