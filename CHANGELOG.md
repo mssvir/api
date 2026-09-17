@@ -6,8 +6,8 @@ The public API is served from `https://api.mssv.ir/v1/`.
 
 ## 2026-09-17 — Canonical `/v1/` base path and client return flow
 
-- Changed the canonical public Machine API base URL to `https://api.mssv.ir/v1/`.
-- Kept `/api/machine/v1` as a method-preserving HTTP `308` compatibility redirect to `/v1/`.
+- Set the canonical public Machine API base URL to `https://api.mssv.ir/v1/`.
+- Removed the unused `/api/machine/v1` compatibility redirect before any Machine API user existed; `/v1/` is the only supported public Machine API namespace.
 - Standardized official website links to [www.mssv.ir](https://www.mssv.ir).
 - Linked account-management references to the [MSSV client area](https://my.mssv.ir/) and API-token references to [Machine API token management](https://my.mssv.ir/machine-users/).
 - Added safe server-side intended-destination handling so customers return to the originally requested internal page after successful login and any required verification.
@@ -15,7 +15,7 @@ The public API is served from `https://api.mssv.ir/v1/`.
 
 ## 2026-09-17 — Dedicated API edge and mandatory source-IP policy
 
-- Moved the documented production Machine API base URL to `https://api.mssv.ir/api/machine/v1`.
+- Initially staged the dedicated API edge while the public namespace was being finalized; the final production namespace is `https://api.mssv.ir/v1/`.
 - Made the IPv4/IPv6/CIDR allowlist mandatory for every active Machine API token.
 - Added customer self-service editing for token name, scopes and source-IP allowlist.
 - Documented trusted CDN real-client-IP handling and fail-closed origin access.
