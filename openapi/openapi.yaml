@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: MSSV API
-  version: 1.1.0
+  version: 1.2.0
   summary: Official MSSV Machine API v1
   description: >-
     Official public API for MSSV customer integrations. The Machine API provides
@@ -18,7 +18,7 @@ externalDocs:
   description: MSSV official website
   url: https://www.mssv.ir
 servers:
-  - url: https://api.mssv.ir/v1
+  - url: https://api.mssv.ir/v1/
     description: MSSV production Machine API v1
 security:
   - bearerAuth: []
@@ -94,6 +94,7 @@ paths:
     post:
       tags: [Orders]
       summary: Create an order
+      description: Select placement with zone_id. MSSV resolves a compatible Node internally from the selected Zone and service availability.
       x-mssv-scope: orders:write
       parameters:
         - {$ref: '#/components/parameters/IdempotencyKey'}
@@ -107,7 +108,6 @@ paths:
                 product_id: {type: integer}
                 cycle: {type: string, default: monthly}
                 zone_id: {type: [integer, 'null']}
-                deployment_target_id: {type: [integer, 'null']}
                 radio_allowed_ip: {type: [string, 'null']}
                 billing_model: {type: [string, 'null']}
               required: [product_id]
