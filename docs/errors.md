@@ -1,6 +1,8 @@
-# Errors, Rate Limits and Idempotency
+# Errors and Idempotency
 
 Official website: https://mssv.ir/
+
+API base URL: `https://api.mssv.ir/api/machine/v1`
 
 ## Error format
 
@@ -19,29 +21,23 @@ Common status codes include:
 |---:|---|
 | 400 | Invalid request shape in endpoint-specific cases |
 | 401 | Missing or invalid authentication |
-| 403 | Valid token without permission, or IP allowlist rejection |
+| 403 | Valid token without permission, source IP rejected, or edge access rejected |
 | 404 | Account-scoped resource not found |
 | 409 | State conflict, such as idempotency-key reuse with a different request |
 | 422 | Validation or business-rule failure |
-| 429 | API rate limit exceeded |
 | 503 | Temporary cutover/synchronization barrier during a controlled platform release |
 
-Common error codes include `unauthorized`, `insufficient_scope`, `api_ip_not_allowed`, `api_rate_limited`, `not_found`, `idempotency_key_required`, `idempotency_key_too_long`, `idempotency_key_conflict`, `action_not_allowed`, `runtime_actions_disabled`, `ticket_closed`, `confirmation_required` and endpoint-specific validation codes.
+Common error codes include `unauthorized`, `insufficient_scope`, `api_ip_not_allowed`, `not_found`, `idempotency_key_required`, `idempotency_key_too_long`, `idempotency_key_conflict`, `action_not_allowed`, `runtime_actions_disabled`, `ticket_closed`, `confirmation_required` and endpoint-specific validation codes.
+
+## Source-IP rejection
+
+Every active Machine API token requires at least one IPv4/IPv6 address or CIDR range. Requests from an address outside the token's configured allowlist are rejected.
+
+The API hostname also uses an aggregate Nginx allowlist at the origin. The application repeats the check against the specific token, so an address associated with one API token cannot authenticate another token unless it is explicitly configured there as well.
 
 ## Rate limiting
 
-Machine tokens have a configured requests-per-minute limit. The MSSV platform also has a global API limit. The effective limit is the lower of those two values.
-
-A rejected request returns HTTP `429` and:
-
-```json
-{
-  "ok": false,
-  "error": "api_rate_limited"
-}
-```
-
-Clients should use bounded retry with backoff. Do not retry validation, permission or authentication errors as if they were transient.
+MSSV does not currently apply a requests-per-minute limiter to the public Machine API. Clients should nevertheless avoid accidental request floods and should use idempotency for supported write operations.
 
 ## Idempotency
 
