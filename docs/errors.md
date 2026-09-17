@@ -1,8 +1,8 @@
 # Errors and Idempotency
 
-Official website: https://mssv.ir/
+Official website: [www.mssv.ir](https://www.mssv.ir/)
 
-API base URL: `https://api.mssv.ir/api/machine/v1`
+API base URL: `https://api.mssv.ir/v1/`
 
 ## Error format
 

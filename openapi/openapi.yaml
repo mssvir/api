@@ -1,24 +1,24 @@
 openapi: 3.1.0
 info:
   title: MSSV API
-  version: 1.0.0
+  version: 1.1.0
   summary: Official MSSV Machine API v1
   description: >-
     Official public API for MSSV customer integrations. The Machine API provides
     scoped access to account information, profiles, products, orders, hosted
     services, billing, wallet and payment history, security, verification,
-    support tickets and team management. Official website: https://mssv.ir/
+    support tickets and team management. Official website: [www.mssv.ir](https://www.mssv.ir/)
   contact:
     name: MSSV
-    url: https://mssv.ir/
+    url: https://www.mssv.ir/
   license:
     name: Apache-2.0
     url: https://www.apache.org/licenses/LICENSE-2.0
 externalDocs:
   description: MSSV official website
-  url: https://mssv.ir/
+  url: https://www.mssv.ir/
 servers:
-  - url: https://mssv.ir/api/machine/v1
+  - url: https://api.mssv.ir/v1
     description: MSSV production Machine API v1
 security:
   - bearerAuth: []
@@ -46,7 +46,6 @@ paths:
         '200': {description: Account and token information}
         '401': {$ref: '#/components/responses/Unauthorized'}
         '403': {$ref: '#/components/responses/Forbidden'}
-        '429': {$ref: '#/components/responses/RateLimited'}
   /profile:
     get:
       tags: [Profile]
@@ -752,8 +751,4 @@ components:
       content:
         application/json:
           schema: {$ref: '#/components/schemas/Error'}
-    RateLimited:
-      description: Effective API rate limit exceeded
-      content:
-        application/json:
-          schema: {$ref: '#/components/schemas/Error'}
+

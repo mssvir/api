@@ -5,8 +5,12 @@ The public MSSV Machine API is versioned in the URL.
 Current base URL:
 
 ```text
-https://mssv.ir/api/machine/v1
+https://api.mssv.ir/v1/
 ```
+
+## Legacy path compatibility
+
+The previous `/api/machine/v1` path is retained as a method-preserving HTTP `308` redirect to the canonical `/v1/` path. New integrations should use `https://api.mssv.ir/v1/` directly.
 
 ## Compatibility
 
@@ -31,4 +35,4 @@ Public API implementation changes should update, in the same release cycle:
 2. the relevant Markdown documentation
 3. `CHANGELOG.md`
 
-The official MSSV website is https://mssv.ir/.
+The official MSSV website is [www.mssv.ir](https://www.mssv.ir/).

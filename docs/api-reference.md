@@ -1,8 +1,8 @@
 # MSSV Machine API v1 Reference
 
-Official website: https://mssv.ir/
+Official website: [www.mssv.ir](https://www.mssv.ir/)
 
-Base URL: `https://api.mssv.ir/api/machine/v1`
+Base URL: `https://api.mssv.ir/v1/`
 
 All endpoints below use Bearer authentication unless explicitly documented otherwise. Every active token requires at least one allowed source IP/CIDR. The public Machine API is account-scoped: customer resources are checked against the account associated with the token.
 
@@ -103,7 +103,7 @@ Invoice detail includes invoice items. Billing preference currently exposes the 
 | GET | `/payments` | `wallet:read` | No |
 | GET | `/payments/{id}` | `wallet:read` | No |
 
-Machine API tokens cannot perform wallet top-ups, invoice payment gateway operations or token administration. Those capabilities require an authenticated human browser session.
+Machine API tokens cannot perform wallet top-ups, invoice payment gateway operations or token administration. Those capabilities require an authenticated browser session in the [MSSV client area](https://my.mssv.ir/).
 
 ## Security sessions and password
 
@@ -185,7 +185,7 @@ The account owner cannot be removed through the member-removal endpoint. Ownersh
 
 ## Source-IP requirement
 
-The authenticated request must arrive from an IP address or CIDR configured on the same Machine API token. The customer can edit this allowlist from the MSSV client area. The origin Nginx layer maintains an aggregate allowlist, while the application repeats the exact token-to-IP check.
+The authenticated request must arrive from an IP address or CIDR configured on the same Machine API token. The customer can edit this allowlist from [Machine API token management](https://my.mssv.ir/machine-users/). The origin Nginx layer maintains an aggregate allowlist, while the application repeats the exact token-to-IP check.
 
 MSSV does not currently apply a requests-per-minute limiter to the public Machine API.
 

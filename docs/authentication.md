@@ -2,9 +2,9 @@
 
 The public MSSV Machine API uses Bearer tokens on the dedicated API hostname.
 
-Base URL: `https://api.mssv.ir/api/machine/v1`
+Base URL: `https://api.mssv.ir/v1/`
 
-Official website: https://mssv.ir/
+Official website: [www.mssv.ir](https://www.mssv.ir/)
 
 ## Authorization header
 
@@ -12,7 +12,7 @@ Official website: https://mssv.ir/
 Authorization: Bearer YOUR_MSSV_API_TOKEN
 ```
 
-Machine API tokens are issued from the authenticated MSSV client area and are shown only once at creation time.
+Machine API tokens are issued from [Machine API token management](https://my.mssv.ir/machine-users/) and are shown only once at creation time.
 
 ## Token controls
 
@@ -25,7 +25,7 @@ Every active Machine API token has:
 
 A token cannot be created or kept active without at least one allowed IP address or CIDR range.
 
-The token owner can edit its name, scopes and IP/CIDR allowlist from the authenticated MSSV client area. These changes are audited and the origin allowlist is reconciled automatically.
+The token owner can edit its name, scopes and IP/CIDR allowlist from [Machine API token management](https://my.mssv.ir/machine-users/). These changes are audited and the origin allowlist is reconciled automatically.
 
 ## Source IP enforcement
 
@@ -78,4 +78,4 @@ MSSV does not currently apply a requests-per-minute limiter to the public Machin
 
 Use the narrowest possible scope set. Prefer a single fixed server address or the smallest practical CIDR range for each integration. Never place a real token in GitHub, client-side JavaScript, screenshots, public logs or support messages.
 
-Official MSSV website: https://mssv.ir/
+Official MSSV website: [www.mssv.ir](https://www.mssv.ir/)
