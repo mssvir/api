@@ -1,7 +1,7 @@
 # MSSV API — Official Developer Documentation
 
 [![Website](https://img.shields.io/badge/Website-mssv.ir-0b7285)](https://mssv.ir/)
-[![API](https://img.shields.io/badge/API-v1-2f9e44)](https://mssv.ir/)
+[![API](https://img.shields.io/badge/API-api.mssv.ir-2f9e44)](https://api.mssv.ir/)
 [![License](https://img.shields.io/badge/License-Apache--2.0-blue)](LICENSE)
 
 Official English documentation and OpenAPI specification for the **MSSV API**.
@@ -10,14 +10,16 @@ MSSV provides hosting and service-management automation through a versioned Mach
 
 **Official website:** https://mssv.ir/
 
-**API base URL:** `https://mssv.ir/api/machine/v1`
+**API hostname:** `https://api.mssv.ir`
+
+**API base URL:** `https://api.mssv.ir/api/machine/v1`
 
 ## Documentation
 
 - [Getting started](docs/getting-started.md)
 - [Authentication and scopes](docs/authentication.md)
 - [API reference](docs/api-reference.md)
-- [Errors, rate limits and idempotency](docs/errors.md)
+- [Errors and idempotency](docs/errors.md)
 - [Versioning policy](docs/versioning.md)
 - [cURL examples](examples/curl.md)
 - [OpenAPI 3.1 specification](openapi/openapi.yaml)
@@ -26,28 +28,33 @@ MSSV provides hosting and service-management automation through a versioned Mach
 
 ## Quick start
 
-Create a Machine API token from your MSSV client account, then send it as a Bearer token:
+Create a Machine API token from your MSSV client account, assign at least one allowed IPv4/IPv6 address or CIDR range to that token, then send it as a Bearer token from an allowed source address:
 
 ```bash
-curl -sS https://mssv.ir/api/machine/v1/me \
+curl -sS https://api.mssv.ir/api/machine/v1/me \
   -H 'Authorization: Bearer YOUR_MSSV_API_TOKEN' \
   -H 'Accept: application/json'
 ```
 
 A successful response uses JSON and includes `"ok": true`.
 
-## API design
+## API security model
 
 The public Machine API currently uses:
 
+- a dedicated `api.mssv.ir` hostname behind MSSV's CDN edge
 - Bearer-token authentication
 - fine-grained permission scopes
-- optional IPv4/IPv6 allowlists, including CIDR ranges
-- per-token and platform-wide rate limiting
+- mandatory per-token IPv4/IPv6 allowlists, including CIDR ranges
+- trusted CDN real-client-IP validation
+- an aggregate edge allowlist in Nginx plus an exact token-to-IP check in the API application
+- no MSSV Machine API requests-per-minute limiter
 - account ownership checks for customer resources
 - `Idempotency-Key` protection on supported state-changing operations
 - JSON responses
 - versioned paths under `/api/machine/v1`
+
+Customers can update the allowed IP/CIDR list for an active Machine API token from the authenticated MSSV client area. Origin allowlist reconciliation is automatic.
 
 ## Public API scope
 
