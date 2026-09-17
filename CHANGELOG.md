@@ -4,6 +4,14 @@ All notable public MSSV API documentation changes are recorded here.
 
 The public API is served from `https://api.mssv.ir/v1/`.
 
+## 2026-09-18 — Zone-only service placement contract
+
+- Made `zone_id` the only public placement input for order creation.
+- Removed the obsolete `deployment_target_id` request field from `POST /orders`.
+- MSSV now resolves a compatible Node internally from the selected Zone, service type and current availability.
+- No compatibility field or legacy placement alias is retained.
+- Updated the OpenAPI document version to `1.2.0`; the public API namespace remains `https://api.mssv.ir/v1/`.
+
 ## 2026-09-17 — Canonical `/v1/` base path and client return flow
 
 - Set the canonical public Machine API base URL to `https://api.mssv.ir/v1/`.
