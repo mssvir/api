@@ -2,9 +2,9 @@
 
 Official website: https://mssv.ir/
 
-Base URL: `https://mssv.ir/api/machine/v1`
+Base URL: `https://api.mssv.ir/api/machine/v1`
 
-All endpoints below use Bearer authentication unless explicitly documented otherwise. The public Machine API is account-scoped: customer resources are checked against the account associated with the token.
+All endpoints below use Bearer authentication unless explicitly documented otherwise. Every active token requires at least one allowed source IP/CIDR. The public Machine API is account-scoped: customer resources are checked against the account associated with the token.
 
 ## Account
 
@@ -182,6 +182,12 @@ Example:
 Creating a new member accepts `email` and `permissions`. If the email is not already an MSSV user, `first_name`, `last_name` and a password of at least 10 characters are also required by the current implementation.
 
 The account owner cannot be removed through the member-removal endpoint. Ownership transfer requires an explicit confirmation value tied to the target user id.
+
+## Source-IP requirement
+
+The authenticated request must arrive from an IP address or CIDR configured on the same Machine API token. The customer can edit this allowlist from the MSSV client area. The origin Nginx layer maintains an aggregate allowlist, while the application repeats the exact token-to-IP check.
+
+MSSV does not currently apply a requests-per-minute limiter to the public Machine API.
 
 ## Response conventions
 
