@@ -1,6 +1,6 @@
 # MSSV API — Official Developer Documentation
 
-[![Website](https://img.shields.io/badge/Website-www.mssv.ir-0b7285)](https://www.mssv.ir/)
+[![Website](https://img.shields.io/badge/Website-www.mssv.ir-0b7285)](https://www.mssv.ir)
 [![API](https://img.shields.io/badge/API-api.mssv.ir%2Fv1-2f9e44)](https://api.mssv.ir/v1/)
 [![License](https://img.shields.io/badge/License-Apache--2.0-blue)](LICENSE)
 
@@ -8,7 +8,7 @@ Official English documentation and OpenAPI specification for the **MSSV API**.
 
 MSSV provides hosting and service-management automation through a versioned Machine API. The API can be used to integrate customer systems with MSSV for account information, products, orders, hosted services, billing, wallet history, support tickets, team management, account security, and verification workflows.
 
-**Official website:** [www.mssv.ir](https://www.mssv.ir/)
+**Official website:** [www.mssv.ir](https://www.mssv.ir)
 
 **API hostname:** `https://api.mssv.ir`
 
@@ -62,7 +62,7 @@ This repository documents the public customer-facing Machine API. Internal MSSV 
 
 ## Website and account access
 
-For MSSV services and current product information, visit **[www.mssv.ir](https://www.mssv.ir/)**. For account access and API token management, use the [MSSV client area](https://my.mssv.ir/).
+For MSSV services and current product information, visit **[www.mssv.ir](https://www.mssv.ir)**. For account access and API token management, use the [MSSV client area](https://my.mssv.ir/).
 
 ## Source of truth
 

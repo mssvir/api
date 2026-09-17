@@ -35,4 +35,4 @@ Public API implementation changes should update, in the same release cycle:
 2. the relevant Markdown documentation
 3. `CHANGELOG.md`
 
-The official MSSV website is [www.mssv.ir](https://www.mssv.ir/).
+The official MSSV website is [www.mssv.ir](https://www.mssv.ir).

@@ -2,7 +2,7 @@
 
 The MSSV Machine API provides programmatic access to customer-account and hosted-service operations.
 
-Official website: [www.mssv.ir](https://www.mssv.ir/)
+Official website: [www.mssv.ir](https://www.mssv.ir)
 
 Base URL:
 
@@ -95,4 +95,4 @@ MSSV does not currently apply a requests-per-minute limiter to the public Machin
 - [OpenAPI specification](../openapi/openapi.yaml)
 - [cURL examples](../examples/curl.md)
 
-For current MSSV product and service information, visit [www.mssv.ir](https://www.mssv.ir/).
+For current MSSV product and service information, visit [www.mssv.ir](https://www.mssv.ir).

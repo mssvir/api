@@ -1,6 +1,6 @@
 # MSSV API cURL Examples
 
-Official website: [www.mssv.ir](https://www.mssv.ir/)
+Official website: [www.mssv.ir](https://www.mssv.ir)
 
 Set your token locally. Do not commit it to source control. The request must originate from an IP/CIDR configured on that Machine API token.
 
@@ -96,4 +96,4 @@ curl -sS "$MSSV_API_BASE/verification" \
 
 If the integration host's public address changes, update the Machine API token's IP/CIDR allowlist from [Machine API token management](https://my.mssv.ir/machine-users/) before sending requests from the new address. Origin allowlist synchronization is automatic.
 
-For product, hosting and account access information, visit [www.mssv.ir](https://www.mssv.ir/).
+For product, hosting and account access information, visit [www.mssv.ir](https://www.mssv.ir).

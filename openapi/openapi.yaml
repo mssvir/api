@@ -7,16 +7,16 @@ info:
     Official public API for MSSV customer integrations. The Machine API provides
     scoped access to account information, profiles, products, orders, hosted
     services, billing, wallet and payment history, security, verification,
-    support tickets and team management. Official website: [www.mssv.ir](https://www.mssv.ir/)
+    support tickets and team management. Official website: [www.mssv.ir](https://www.mssv.ir)
   contact:
     name: MSSV
-    url: https://www.mssv.ir/
+    url: https://www.mssv.ir
   license:
     name: Apache-2.0
     url: https://www.apache.org/licenses/LICENSE-2.0
 externalDocs:
   description: MSSV official website
-  url: https://www.mssv.ir/
+  url: https://www.mssv.ir
 servers:
   - url: https://api.mssv.ir/v1
     description: MSSV production Machine API v1

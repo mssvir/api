@@ -4,7 +4,7 @@ The public MSSV Machine API uses Bearer tokens on the dedicated API hostname.
 
 Base URL: `https://api.mssv.ir/v1/`
 
-Official website: [www.mssv.ir](https://www.mssv.ir/)
+Official website: [www.mssv.ir](https://www.mssv.ir)
 
 ## Authorization header
 
@@ -78,4 +78,4 @@ MSSV does not currently apply a requests-per-minute limiter to the public Machin
 
 Use the narrowest possible scope set. Prefer a single fixed server address or the smallest practical CIDR range for each integration. Never place a real token in GitHub, client-side JavaScript, screenshots, public logs or support messages.
 
-Official MSSV website: [www.mssv.ir](https://www.mssv.ir/)
+Official MSSV website: [www.mssv.ir](https://www.mssv.ir)

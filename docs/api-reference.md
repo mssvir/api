@@ -1,6 +1,6 @@
 # MSSV Machine API v1 Reference
 
-Official website: [www.mssv.ir](https://www.mssv.ir/)
+Official website: [www.mssv.ir](https://www.mssv.ir)
 
 Base URL: `https://api.mssv.ir/v1/`
 

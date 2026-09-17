@@ -2,13 +2,13 @@
 
 Security matters for every MSSV API integration.
 
-Official website: [www.mssv.ir](https://www.mssv.ir/)
+Official website: [www.mssv.ir](https://www.mssv.ir)
 
 ## Reporting a vulnerability
 
 Please do not publish API tokens, customer data, credentials, secrets, session identifiers, private infrastructure details, or exploitable security findings in a public GitHub issue.
 
-Use the support channels available through [www.mssv.ir](https://www.mssv.ir/) to report security-sensitive issues privately.
+Use the support channels available through [www.mssv.ir](https://www.mssv.ir) to report security-sensitive issues privately.
 
 When reporting a vulnerability, include only the minimum information needed to reproduce the issue safely. Redact tokens and customer data.
 

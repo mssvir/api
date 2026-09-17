@@ -8,7 +8,7 @@ The public API is served from `https://api.mssv.ir/v1/`.
 
 - Changed the canonical public Machine API base URL to `https://api.mssv.ir/v1/`.
 - Kept `/api/machine/v1` as a method-preserving HTTP `308` compatibility redirect to `/v1/`.
-- Standardized official website links to [www.mssv.ir](https://www.mssv.ir/).
+- Standardized official website links to [www.mssv.ir](https://www.mssv.ir).
 - Linked account-management references to the [MSSV client area](https://my.mssv.ir/) and API-token references to [Machine API token management](https://my.mssv.ir/machine-users/).
 - Added safe server-side intended-destination handling so customers return to the originally requested internal page after successful login and any required verification.
 - Updated the OpenAPI contract to remove the obsolete `429 RateLimited` response from the current no-RPM-limit Machine API policy.
@@ -30,6 +30,6 @@ The public API is served from `https://api.mssv.ir/v1/`.
 - Documented Bearer authentication and permission scopes.
 - Documented pagination, common errors and idempotency behavior.
 - Documented public endpoints for account, profile, products, orders, services, invoices, billing, wallet, payments, security sessions, verification, tickets and team management.
-- Added cURL examples and links to the official MSSV website at [www.mssv.ir](https://www.mssv.ir/).
+- Added cURL examples and links to the official MSSV website at [www.mssv.ir](https://www.mssv.ir).
 
 Future public API changes should update this file, `openapi/openapi.yaml`, and the relevant Markdown reference in the same release cycle.
