@@ -1,0 +1,759 @@
+openapi: 3.1.0
+info:
+  title: MSSV API
+  version: 1.0.0
+  summary: Official MSSV Machine API v1
+  description: >-
+    Official public API for MSSV customer integrations. The Machine API provides
+    scoped access to account information, profiles, products, orders, hosted
+    services, billing, wallet and payment history, security, verification,
+    support tickets and team management. Official website: https://mssv.ir/
+  contact:
+    name: MSSV
+    url: https://mssv.ir/
+  license:
+    name: Apache-2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+externalDocs:
+  description: MSSV official website
+  url: https://mssv.ir/
+servers:
+  - url: https://mssv.ir/api/machine/v1
+    description: MSSV production Machine API v1
+security:
+  - bearerAuth: []
+tags:
+  - name: Account
+  - name: Profile
+  - name: Products
+  - name: Orders
+  - name: Services
+  - name: Invoices
+  - name: Billing
+  - name: Wallet
+  - name: Payments
+  - name: Security
+  - name: Verification
+  - name: Tickets
+  - name: Team
+paths:
+  /me:
+    get:
+      tags: [Account]
+      summary: Get account and token information
+      x-mssv-scope: account:read
+      responses:
+        '200': {description: Account and token information}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '429': {$ref: '#/components/responses/RateLimited'}
+  /profile:
+    get:
+      tags: [Profile]
+      summary: Get owner profile
+      x-mssv-scope: profile:read
+      responses:
+        '200': {description: Owner profile}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+    post:
+      tags: [Profile]
+      summary: Update owner profile
+      x-mssv-scope: profile:update
+      parameters:
+        - {$ref: '#/components/parameters/IdempotencyKey'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name: {type: string}
+                last_name: {type: string}
+                phone: {type: string}
+                email: {type: string, format: email}
+                city: {type: string}
+                state: {type: string}
+                postcode: {type: string}
+              required: [first_name, last_name, phone]
+      responses:
+        '200': {description: Profile updated}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+  /products:
+    get:
+      tags: [Products]
+      summary: List available products
+      description: Returns products with billing models, prices, zones and availability data.
+      x-mssv-scope: products:read
+      responses:
+        '200': {description: Product catalog}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+  /orders:
+    post:
+      tags: [Orders]
+      summary: Create an order
+      x-mssv-scope: orders:write
+      parameters:
+        - {$ref: '#/components/parameters/IdempotencyKey'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product_id: {type: integer}
+                cycle: {type: string, default: monthly}
+                zone_id: {type: [integer, 'null']}
+                deployment_target_id: {type: [integer, 'null']}
+                radio_allowed_ip: {type: [string, 'null']}
+                billing_model: {type: [string, 'null']}
+              required: [product_id]
+      responses:
+        '201': {description: Order created}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+  /services:
+    get:
+      tags: [Services]
+      summary: List services
+      x-mssv-scope: services:read
+      parameters:
+        - {$ref: '#/components/parameters/Page'}
+        - {$ref: '#/components/parameters/PerPage'}
+        - name: status
+          in: query
+          schema: {type: string}
+      responses:
+        '200': {description: Paginated service list}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+  /services/{id}:
+    get:
+      tags: [Services]
+      summary: Get service details
+      description: Returns the service, masked custom fields, usage, automation policy and available runtime actions.
+      x-mssv-scope: services:read
+      parameters:
+        - {$ref: '#/components/parameters/ServiceId'}
+      responses:
+        '200': {description: Service details}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /services/{id}/history:
+    get:
+      tags: [Services]
+      summary: Get service history
+      x-mssv-scope: services:read
+      parameters:
+        - {$ref: '#/components/parameters/ServiceId'}
+        - {$ref: '#/components/parameters/Page'}
+        - {$ref: '#/components/parameters/PerPage'}
+      responses:
+        '200': {description: Service history}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /services/{id}/action:
+    post:
+      tags: [Services]
+      summary: Run a service runtime action
+      description: Use an action returned by the service's available_actions field.
+      x-mssv-scope: services:operate
+      parameters:
+        - {$ref: '#/components/parameters/ServiceId'}
+        - {$ref: '#/components/parameters/IdempotencyKey'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  enum: [start, stop, restart, reset, repair, change_password]
+                confirm: {type: string}
+              required: [action]
+      responses:
+        '202': {description: Operation queued}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+  /services/{id}/secret:
+    get:
+      tags: [Services]
+      summary: Reveal a supported service secret
+      x-mssv-scope: services:secrets
+      parameters:
+        - {$ref: '#/components/parameters/ServiceId'}
+        - name: key
+          in: query
+          required: true
+          schema: {type: string}
+      responses:
+        '200': {description: Secret value, returned with no-store semantics}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+  /services/{id}/change/preview:
+    post:
+      tags: [Services]
+      summary: Preview service product or zone change
+      x-mssv-scope: services:manage
+      parameters:
+        - {$ref: '#/components/parameters/ServiceId'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product_id: {type: integer}
+                zone_id: {type: [integer, 'null']}
+              required: [product_id]
+      responses:
+        '200': {description: Change preview}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+  /services/{id}/change:
+    post:
+      tags: [Services]
+      summary: Apply service product or zone change
+      x-mssv-scope: services:manage
+      parameters:
+        - {$ref: '#/components/parameters/ServiceId'}
+        - {$ref: '#/components/parameters/IdempotencyKey'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product_id: {type: integer}
+                zone_id: {type: [integer, 'null']}
+              required: [product_id]
+      responses:
+        '200': {description: Change applied}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+  /services/{id}/billing-model/preview:
+    post:
+      tags: [Services]
+      summary: Preview a billing-model change
+      x-mssv-scope: services:manage
+      parameters:
+        - {$ref: '#/components/parameters/ServiceId'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                billing_model: {type: string}
+              required: [billing_model]
+      responses:
+        '200': {description: Billing-model preview}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+  /services/{id}/billing-model:
+    post:
+      tags: [Services]
+      summary: Apply a billing-model change
+      x-mssv-scope: services:manage
+      parameters:
+        - {$ref: '#/components/parameters/ServiceId'}
+        - {$ref: '#/components/parameters/IdempotencyKey'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                billing_model: {type: string}
+              required: [billing_model]
+      responses:
+        '200': {description: Billing model changed}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+  /services/{id}/auto-renew:
+    post:
+      tags: [Services]
+      summary: Set service auto-renew
+      x-mssv-scope: services:manage
+      parameters:
+        - {$ref: '#/components/parameters/ServiceId'}
+        - {$ref: '#/components/parameters/IdempotencyKey'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                enabled: {type: boolean}
+              required: [enabled]
+      responses:
+        '200': {description: Auto-renew updated}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /services/{id}/renew:
+    post:
+      tags: [Services]
+      summary: Renew a supported monthly service
+      x-mssv-scope: services:manage
+      parameters:
+        - {$ref: '#/components/parameters/ServiceId'}
+        - {$ref: '#/components/parameters/IdempotencyKey'}
+      responses:
+        '200': {description: Renewal result}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+  /services/{id}/terminate-payg:
+    post:
+      tags: [Services]
+      summary: Terminate a supported pay-as-you-go service
+      x-mssv-scope: services:manage
+      parameters:
+        - {$ref: '#/components/parameters/ServiceId'}
+        - {$ref: '#/components/parameters/IdempotencyKey'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                confirm: {type: string}
+              required: [confirm]
+      responses:
+        '200': {description: Termination result}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+  /invoices:
+    get:
+      tags: [Invoices]
+      summary: List invoices
+      x-mssv-scope: invoices:read
+      parameters:
+        - {$ref: '#/components/parameters/Page'}
+        - {$ref: '#/components/parameters/PerPage'}
+      responses:
+        '200': {description: Paginated invoice list}
+  /invoices/{id}:
+    get:
+      tags: [Invoices]
+      summary: Get invoice and items
+      x-mssv-scope: invoices:read
+      parameters:
+        - {$ref: '#/components/parameters/InvoiceId'}
+      responses:
+        '200': {description: Invoice detail}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /billing/preference:
+    get:
+      tags: [Billing]
+      summary: Get billing preference
+      x-mssv-scope: billing:manage
+      responses:
+        '200': {description: Billing preference}
+    post:
+      tags: [Billing]
+      summary: Update billing preference
+      x-mssv-scope: billing:manage
+      parameters:
+        - {$ref: '#/components/parameters/IdempotencyKey'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                official_invoice: {type: boolean}
+              required: [official_invoice]
+      responses:
+        '200': {description: Billing preference updated}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /wallet:
+    get:
+      tags: [Wallet]
+      summary: Get wallet balance and entries
+      x-mssv-scope: wallet:read
+      parameters:
+        - {$ref: '#/components/parameters/Page'}
+        - {$ref: '#/components/parameters/PerPage'}
+      responses:
+        '200': {description: Wallet balance and paginated entries}
+  /payments:
+    get:
+      tags: [Payments]
+      summary: List payment history
+      x-mssv-scope: wallet:read
+      parameters:
+        - {$ref: '#/components/parameters/Page'}
+        - {$ref: '#/components/parameters/PerPage'}
+      responses:
+        '200': {description: Payment history}
+  /payments/{id}:
+    get:
+      tags: [Payments]
+      summary: Get payment detail
+      x-mssv-scope: wallet:read
+      parameters:
+        - {$ref: '#/components/parameters/PaymentId'}
+      responses:
+        '200': {description: Payment detail}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /security/sessions:
+    get:
+      tags: [Security]
+      summary: List owner sessions
+      x-mssv-scope: security:manage
+      responses:
+        '200': {description: Session list}
+  /security/sessions/{hash}/revoke:
+    post:
+      tags: [Security]
+      summary: Revoke one owner session
+      x-mssv-scope: security:manage
+      parameters:
+        - name: hash
+          in: path
+          required: true
+          schema: {type: string, pattern: '^[a-fA-F0-9]{64}$'}
+        - {$ref: '#/components/parameters/IdempotencyKey'}
+      responses:
+        '200': {description: Session revoked}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+  /security/sessions/revoke-all:
+    post:
+      tags: [Security]
+      summary: Revoke all owner sessions
+      x-mssv-scope: security:manage
+      parameters:
+        - {$ref: '#/components/parameters/IdempotencyKey'}
+      responses:
+        '200': {description: Sessions revoked}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /security/password:
+    post:
+      tags: [Security]
+      summary: Change owner password
+      x-mssv-scope: security:manage
+      parameters:
+        - {$ref: '#/components/parameters/IdempotencyKey'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                current_password: {type: string, format: password}
+                new_password: {type: string, format: password, minLength: 10}
+                confirm_password: {type: string, format: password}
+              required: [current_password, new_password, confirm_password]
+      responses:
+        '200': {description: Password changed and sessions revoked}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+  /verification:
+    get:
+      tags: [Verification]
+      summary: Get phone and email verification state
+      x-mssv-scope: verification:manage
+      responses:
+        '200': {description: Verification state}
+  /verification/send:
+    post:
+      tags: [Verification]
+      summary: Send a verification challenge
+      x-mssv-scope: verification:manage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                channel: {type: string, enum: [sms, email]}
+              required: [channel]
+      responses:
+        '201': {description: Verification challenge issued}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+  /verification/verify:
+    post:
+      tags: [Verification]
+      summary: Verify a phone or email challenge
+      x-mssv-scope: verification:manage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                channel: {type: string, enum: [sms, email]}
+                challenge_id: {type: string}
+                code: {type: string}
+              required: [channel, challenge_id, code]
+      responses:
+        '200': {description: Verification completed}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+  /tickets:
+    get:
+      tags: [Tickets]
+      summary: List support tickets
+      x-mssv-scope: tickets:read
+      parameters:
+        - {$ref: '#/components/parameters/Page'}
+        - {$ref: '#/components/parameters/PerPage'}
+      responses:
+        '200': {description: Paginated ticket list}
+    post:
+      tags: [Tickets]
+      summary: Create a support ticket
+      x-mssv-scope: tickets:write
+      parameters:
+        - {$ref: '#/components/parameters/IdempotencyKey'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: {type: string}
+                message: {type: string}
+                service_id: {type: [integer, 'null']}
+                priority: {type: string, default: Medium}
+              required: [title, message]
+      responses:
+        '201': {description: Ticket created}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+  /tickets/{id}:
+    get:
+      tags: [Tickets]
+      summary: Get support ticket and replies
+      x-mssv-scope: tickets:read
+      parameters:
+        - {$ref: '#/components/parameters/TicketId'}
+      responses:
+        '200': {description: Ticket and replies}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /tickets/{id}/reply:
+    post:
+      tags: [Tickets]
+      summary: Reply to a support ticket
+      x-mssv-scope: tickets:write
+      parameters:
+        - {$ref: '#/components/parameters/TicketId'}
+        - {$ref: '#/components/parameters/IdempotencyKey'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message: {type: string}
+              required: [message]
+      responses:
+        '200': {description: Reply created}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+  /tickets/{id}/close:
+    post:
+      tags: [Tickets]
+      summary: Close a support ticket
+      x-mssv-scope: tickets:write
+      parameters:
+        - {$ref: '#/components/parameters/TicketId'}
+        - {$ref: '#/components/parameters/IdempotencyKey'}
+      responses:
+        '200': {description: Ticket closed}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /team:
+    get:
+      tags: [Team]
+      summary: List account team members and permission catalog
+      x-mssv-scope: team:read
+      responses:
+        '200': {description: Team members and permission catalog}
+    post:
+      tags: [Team]
+      summary: Add an account team member
+      x-mssv-scope: team:write
+      parameters:
+        - {$ref: '#/components/parameters/IdempotencyKey'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: {type: string, format: email}
+                permissions:
+                  type: array
+                  items: {type: string}
+                first_name: {type: string}
+                last_name: {type: string}
+                password: {type: string, format: password, minLength: 10}
+              required: [email]
+      responses:
+        '201': {description: Team member added}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+  /team/{id}:
+    post:
+      tags: [Team]
+      summary: Update an account team member
+      x-mssv-scope: team:write
+      parameters:
+        - {$ref: '#/components/parameters/UserId'}
+        - {$ref: '#/components/parameters/IdempotencyKey'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                permissions:
+                  type: array
+                  items: {type: string}
+                status: {type: string, enum: [active, disabled]}
+      responses:
+        '200': {description: Team member updated}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+  /team/{id}/remove:
+    post:
+      tags: [Team]
+      summary: Remove an account team member
+      x-mssv-scope: team:write
+      parameters:
+        - {$ref: '#/components/parameters/UserId'}
+        - {$ref: '#/components/parameters/IdempotencyKey'}
+      responses:
+        '200': {description: Team member removed}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+  /team/{id}/transfer-owner:
+    post:
+      tags: [Team]
+      summary: Transfer account ownership
+      x-mssv-scope: team:write
+      parameters:
+        - {$ref: '#/components/parameters/UserId'}
+        - {$ref: '#/components/parameters/IdempotencyKey'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                confirm: {type: string}
+              required: [confirm]
+      responses:
+        '200': {description: Ownership transferred}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: MSSV Machine API token
+      description: Machine API token created in the authenticated MSSV client area.
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: Unique operation key, maximum 190 characters. Stored for 24 hours by the current implementation.
+      schema: {type: string, maxLength: 190}
+    Page:
+      name: page
+      in: query
+      schema: {type: integer, minimum: 1, default: 1}
+    PerPage:
+      name: per_page
+      in: query
+      schema: {type: integer, enum: [25, 50, 100], default: 50}
+    ServiceId:
+      name: id
+      in: path
+      required: true
+      schema: {type: integer, minimum: 1}
+    InvoiceId:
+      name: id
+      in: path
+      required: true
+      schema: {type: integer, minimum: 1}
+    PaymentId:
+      name: id
+      in: path
+      required: true
+      schema: {type: integer, minimum: 1}
+    TicketId:
+      name: id
+      in: path
+      required: true
+      schema: {type: integer, minimum: 1}
+    UserId:
+      name: id
+      in: path
+      required: true
+      schema: {type: integer, minimum: 1}
+  schemas:
+    Error:
+      type: object
+      properties:
+        ok: {type: boolean, const: false}
+        error: {type: string}
+      required: [ok, error]
+  responses:
+    Unauthorized:
+      description: Missing or invalid Machine API token
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/Error'}
+    Forbidden:
+      description: Insufficient scope or IP allowlist rejection
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/Error'}
+    NotFound:
+      description: Account-scoped resource not found
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/Error'}
+    Conflict:
+      description: Request or state conflict, including idempotency-key conflict
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/Error'}
+    Unprocessable:
+      description: Validation or business-rule failure
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/Error'}
+    RateLimited:
+      description: Effective API rate limit exceeded
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/Error'}
