@@ -1,0 +1,41 @@
+name: Fix documentation sync OpenAPI ordering
+
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-doc-sync-openapi-order.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Fix sync workflow
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('.github/workflows/sync-canonical-api-v1-docs.yml')
+          s=p.read_text(encoding='utf-8')
+          anchor="          s=rep(s,'url: https://mssv.ir/','url: https://www.mssv.ir/')\n"
+          fix="          s=rep(s,'url: https://www.mssv.ir/api/machine/v1','url: https://api.mssv.ir/v1')\n"
+          if fix not in s:
+              if anchor not in s:
+                  raise SystemExit('OpenAPI URL anchor not found')
+              s=s.replace(anchor,anchor+fix,1)
+              p.write_text(s,encoding='utf-8')
+          PY
+          git config user.name 'mssvir-docs-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add .github/workflows/sync-canonical-api-v1-docs.yml
+          if git diff --cached --quiet; then
+            echo FIX_ALREADY_APPLIED=1
+            exit 0
+          fi
+          git commit -m 'docs: fix OpenAPI URL transform order'
+          git push origin HEAD:main
