@@ -60,9 +60,9 @@ Customers can update the allowed IP/CIDR list for an active Machine API token fr
 
 This repository documents the public customer-facing Machine API. Internal MSSV control-plane, node-agent, administrative, infrastructure and production-only interfaces are intentionally excluded.
 
-## Website and product information
+## Website and account access
 
-For MSSV services, account access and current product information, visit **[www.mssv.ir](https://www.mssv.ir/)**.
+For MSSV services and current product information, visit **[www.mssv.ir](https://www.mssv.ir/)**. For account access and API token management, use the [MSSV client area](https://my.mssv.ir/).
 
 ## Source of truth
 
