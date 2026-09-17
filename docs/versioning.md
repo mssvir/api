@@ -8,13 +8,11 @@ Current base URL:
 https://api.mssv.ir/v1/
 ```
 
-## Legacy path compatibility
+`/v1/` is the only supported public Machine API namespace. Unsupported historical or alternate paths are not aliases and are expected to return `404` unless MSSV explicitly documents a compatibility mechanism in a future release.
 
-The previous `/api/machine/v1` path is retained as a method-preserving HTTP `308` redirect to the canonical `/v1/` path. New integrations should use `https://api.mssv.ir/v1/` directly.
+## Compatibility within v1
 
-## Compatibility
-
-Within `v1`, MSSV aims to keep existing integrations working when adding new optional fields, response properties, endpoints, actions or enum values.
+Within `v1`, MSSV aims to keep documented integrations stable when adding new optional fields, response properties, endpoints, actions or enum values. This does not create alternate URL namespaces or legacy-path redirects.
 
 Clients should:
 
@@ -25,7 +23,7 @@ Clients should:
 
 ## Breaking changes
 
-A change that requires existing clients to change request structure, authentication behavior or core response semantics should be introduced through a new API version or a documented compatibility plan.
+A change that requires existing clients to change request structure, authentication behavior or core response semantics should be documented before release. A new compatibility layer or alternate version/path is not introduced unless MSSV explicitly decides to provide one.
 
 ## Documentation updates
 
