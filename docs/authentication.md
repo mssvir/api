@@ -1,8 +1,10 @@
 # Authentication and Scopes
 
-The public MSSV Machine API uses Bearer tokens.
+The public MSSV Machine API uses Bearer tokens on the dedicated API hostname.
 
-Base URL: `https://mssv.ir/api/machine/v1`
+Base URL: `https://api.mssv.ir/api/machine/v1`
+
+Official website: https://mssv.ir/
 
 ## Authorization header
 
@@ -14,15 +16,32 @@ Machine API tokens are issued from the authenticated MSSV client area and are sh
 
 ## Token controls
 
-A token can include:
+Every active Machine API token has:
 
 - a name
 - a set of scopes
 - an optional expiration time
-- an optional IPv4/IPv6 allowlist, including CIDR ranges
-- a per-token requests-per-minute limit
+- a **mandatory** IPv4/IPv6 allowlist, including CIDR ranges
 
-The effective rate limit is the lower of the platform-wide limit and the token-specific limit.
+A token cannot be created or kept active without at least one allowed IP address or CIDR range.
+
+The token owner can edit its name, scopes and IP/CIDR allowlist from the authenticated MSSV client area. These changes are audited and the origin allowlist is reconciled automatically.
+
+## Source IP enforcement
+
+`api.mssv.ir` is served through MSSV's CDN. MSSV accepts real-client-IP information only through the trusted CDN path and passes the validated client address to the API application.
+
+Requests are checked at multiple layers:
+
+1. The origin Nginx configuration rejects source addresses that are not present in the aggregate allowlist of active Machine API tokens.
+2. The Machine API performs an exact token-to-IP/CIDR check. An IP allowed for one token does not make it valid for another token.
+3. Direct requests to the origin that do not arrive through a trusted CDN peer are rejected.
+
+If the authenticated request IP is not allowed for that token, the API returns HTTP `403` with `api_ip_not_allowed`.
+
+## Rate limiting
+
+MSSV does not currently apply a requests-per-minute limiter to the public Machine API. Authentication, mandatory source-IP restrictions, scopes, ownership checks and idempotency controls still apply.
 
 ## Scope catalog
 
@@ -53,11 +72,10 @@ The effective rate limit is the lower of the platform-wide limit and the token-s
 |---:|---|---|
 | 401 | `unauthorized` | Missing, malformed, expired, revoked or unknown token |
 | 403 | `insufficient_scope` | Token lacks the endpoint's required scope |
-| 403 | `api_ip_not_allowed` | Request IP is outside the token allowlist |
-| 429 | `api_rate_limited` | Effective API rate limit was exceeded |
+| 403 | `api_ip_not_allowed` | Request IP is outside the token's mandatory allowlist |
 
 ## Security recommendations
 
-Use the narrowest possible scope set and configure an IP/CIDR allowlist for fixed-server integrations. Never place a real token in GitHub, client-side JavaScript, screenshots, public logs or support messages.
+Use the narrowest possible scope set. Prefer a single fixed server address or the smallest practical CIDR range for each integration. Never place a real token in GitHub, client-side JavaScript, screenshots, public logs or support messages.
 
 Official MSSV website: https://mssv.ir/
