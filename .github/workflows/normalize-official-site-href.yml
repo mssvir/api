@@ -1,0 +1,47 @@
+name: Normalize official MSSV website href
+
+on:
+  push:
+    paths:
+      - '.github/workflows/normalize-official-site-href.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  normalize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Normalize and commit
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          files=[
+            'README.md','CHANGELOG.md','CITATION.cff','SECURITY.md',
+            'docs/getting-started.md','docs/authentication.md','docs/errors.md',
+            'docs/api-reference.md','docs/versioning.md','examples/curl.md',
+            'openapi/openapi.yaml'
+          ]
+          for f in files:
+            p=Path(f)
+            s=p.read_text(encoding='utf-8')
+            s=s.replace('https://www.mssv.ir/','https://www.mssv.ir')
+            p.write_text(s,encoding='utf-8')
+          for f in files:
+            s=Path(f).read_text(encoding='utf-8')
+            if 'https://www.mssv.ir/' in s:
+              raise SystemExit(f'trailing-slash website href remained in {f}')
+          assert '[www.mssv.ir](https://www.mssv.ir)' in Path('README.md').read_text(encoding='utf-8')
+          assert 'url: https://www.mssv.ir\n' in Path('openapi/openapi.yaml').read_text(encoding='utf-8')
+          assert 'https://api.mssv.ir/v1/' in Path('README.md').read_text(encoding='utf-8')
+          print('OFFICIAL_SITE_HREF_NORMALIZED=1')
+          PY
+          git config user.name 'mssvir-docs-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add README.md CHANGELOG.md CITATION.cff SECURITY.md docs examples openapi/openapi.yaml
+          git commit -m 'docs: normalize official website href to https://www.mssv.ir'
+          git push origin HEAD:main
