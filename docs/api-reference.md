@@ -30,7 +30,7 @@ Profile update accepts owner identity/contact fields including `first_name`, `la
 | GET | `/products` | `products:read` | No |
 | POST | `/orders` | `orders:write` | Required |
 
-Product results include available billing models, prices, zones and availability information. Order creation supports product, billing cycle, zone/deployment selection and supported product-specific fields.
+Product results include available billing models, prices, zones and availability information. Order creation uses `zone_id` as the public placement input. MSSV selects a compatible Node inside that Zone based on the service type and current availability; there is no separate deployment-target parameter in the public API.
 
 Typical order fields:
 
