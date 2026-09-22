@@ -599,7 +599,7 @@ paths:
     get:
       tags: [Services]
       summary: List fresh Radio endpoints in the owned JTS3 service Zone
-      description: Preview operation. Only fresh canonical HTTPS public URLs without embedded user/password credentials are returned; node metadata is excluded. Missing JTS3 Zone mapping returns service_zone_unavailable.
+      description: Preview operation. Only fresh canonical HTTPS public URLs without embedded credentials, query strings, fragments, or private/reserved literal-IP hosts are returned; node metadata is excluded. Missing JTS3 Zone mapping returns service_zone_unavailable.
       x-mssv-scope: services:read
       parameters:
         - {$ref: '#/components/parameters/ServiceId'}
