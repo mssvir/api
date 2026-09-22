@@ -338,6 +338,7 @@ paths:
       description: Preview operation. Returns only capabilities accepted by the public contract after deployment.
       x-mssv-scope: account:read
       responses:
+        '503': {$ref: '#/components/responses/ServiceUnavailable'}
         '200':
           description: Capability discovery
           content:
@@ -421,6 +422,7 @@ paths:
       parameters:
         - {$ref: '#/components/parameters/ServiceId'}
       responses:
+        '503': {$ref: '#/components/responses/ServiceUnavailable'}
         '200':
           description: Public port state
           content:
@@ -475,6 +477,7 @@ paths:
       parameters:
         - {$ref: '#/components/parameters/ServiceId'}
       responses:
+        '503': {$ref: '#/components/responses/ServiceUnavailable'}
         '200':
           description: Projected whitelist state
           content:
@@ -601,6 +604,7 @@ paths:
       parameters:
         - {$ref: '#/components/parameters/ServiceId'}
       responses:
+        '503': {$ref: '#/components/responses/ServiceUnavailable'}
         '200':
           description: Fresh Zone Radio endpoint catalog
           content:
