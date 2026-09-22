@@ -31,7 +31,11 @@ TeaSpeak observability is projected through explicit public allowlists. Node rec
 
 Port changes accept only integer `voice_port` and `query_port`; file port remains read-only. The request is delegated to the existing guarded reservation/preflight/queue flow with admin override disabled. Pagination accepts only `per_page=25|50|100`; malformed numeric strings such as `50x` are rejected.
 
-Whitelist rules are IPv4-only and use `voice` or `query` port kinds. `limit_mode=limited` requires `max_connections`; `limit_mode=unlimited` forbids a numeric ceiling. GET responses are explicitly projected so future private domain fields cannot leak into the public contract. DELETE with an empty body does not require a `Content-Type` header; if a non-empty content type is supplied it must be `application/json`.
+Whitelist rules are IPv4-only and use `voice` or `query` port kinds. `limit_mode=limited` requires `max_connections`; `limit_mode=unlimited` forbids a numeric ceiling. GET responses are explicitly projected so future private domain fields cannot leak into the public contract. DELETE is strictly zero-length: an empty body does not require a `Content-Type` header, but non-zero `Content-Length`, `Transfer-Encoding`, or a parsed body is rejected.
+
+Radio IP changes accept only public IPv4 addresses; private and reserved ranges are rejected. Active Radio changes are remote-first, so an uncertain timeout, local commit failure, or concurrent local change returns `503 radio_ip_reconciliation_required` with `reconciliation_required=true` instead of inviting an unsafe retry. Radio endpoint lists also reject credential-bearing URLs such as `https://user:pass@host/...` even when the URL is otherwise syntactically valid.
+
+Authentication failures are distinguished from authentication-backend failures: a missing or invalid token remains `401 unauthorized`, an IP allowlist rejection remains `403 api_ip_not_allowed`, and an unexpected authentication subsystem failure is redacted as `503 authentication_unavailable`.
 
 All preview writes require `Idempotency-Key`. A key is claimed before the domain side effect. JSON object keys are canonicalized before request hashing, so reordering object properties does not create a false idempotency conflict. Completed responses are replayed for 24 hours. A claim that remains pending after an uncertain outcome is **not** automatically expired or re-executed; operators reconcile it and clients must keep the same key instead of forcing a second side effect.
 
