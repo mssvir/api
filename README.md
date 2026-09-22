@@ -19,10 +19,12 @@ MSSV provides hosting and service-management automation through a versioned Mach
 - [Getting started](docs/getting-started.md)
 - [Authentication and scopes](docs/authentication.md)
 - [API reference](docs/api-reference.md)
+- [D13 API preview contract — not yet production](docs/api-preview.md)
 - [Errors and idempotency](docs/errors.md)
 - [Versioning policy](docs/versioning.md)
 - [cURL examples](examples/curl.md)
-- [OpenAPI 3.1 specification](openapi/openapi.yaml)
+- [OpenAPI 3.1 production specification](openapi/openapi.yaml)
+- [OpenAPI 3.1 D13 preview specification](openapi/openapi-preview.yaml)
 - [Changelog](CHANGELOG.md)
 - [Security policy](SECURITY.md)
 
@@ -59,6 +61,8 @@ Customers can update the allowed IP/CIDR list for an active Machine API token fr
 ## Public API scope
 
 This repository documents the public customer-facing Machine API. Internal MSSV control-plane, node-agent, administrative, infrastructure and production-only interfaces are intentionally excluded.
+
+The production contract remains the 41-operation specification in `openapi/openapi.yaml`. A separately labeled 53-operation D13 candidate is published in `openapi/openapi-preview.yaml` for review only; preview operations must not be treated as live until production acceptance is recorded.
 
 ## Website and account access
 
