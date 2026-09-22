@@ -33,7 +33,7 @@ Port changes accept only integer `voice_port` and `query_port`; file port remain
 
 Whitelist rules are IPv4-only and use `voice` or `query` port kinds. `limit_mode=limited` requires `max_connections`; `limit_mode=unlimited` forbids a numeric ceiling. GET responses are explicitly projected so future private domain fields cannot leak into the public contract. DELETE with an empty body does not require a `Content-Type` header; if a non-empty content type is supplied it must be `application/json`.
 
-All preview writes require `Idempotency-Key`. A key is claimed before the domain side effect. Completed responses are replayed for 24 hours. A claim that remains pending after an uncertain outcome is **not** automatically expired or re-executed; operators reconcile it and clients must keep the same key instead of forcing a second side effect.
+All preview writes require `Idempotency-Key`. A key is claimed before the domain side effect. JSON object keys are canonicalized before request hashing, so reordering object properties does not create a false idempotency conflict. Completed responses are replayed for 24 hours. A claim that remains pending after an uncertain outcome is **not** automatically expired or re-executed; operators reconcile it and clients must keep the same key instead of forcing a second side effect.
 
 ## Rollout state
 
