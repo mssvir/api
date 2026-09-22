@@ -542,7 +542,7 @@ paths:
     delete:
       tags: [Services]
       summary: Delete a customer TeaSpeak whitelist rule
-      description: Preview operation. An empty request body does not require a Content-Type header.
+      description: Preview operation. The request must be zero-length. An empty body does not require a Content-Type header; non-zero Content-Length or Transfer-Encoding is rejected.
       x-mssv-scope: services:manage
       parameters:
         - {$ref: '#/components/parameters/ServiceId'}
@@ -567,7 +567,7 @@ paths:
     post:
       tags: [Services]
       summary: Change the allowed IPv4 address for a Radio service
-      description: Preview operation. Only an owned radio service can be changed.
+      description: Preview operation. Only an owned radio service can be changed, and allowed_ip must be a public IPv4 address.
       x-mssv-scope: services:manage
       parameters:
         - {$ref: '#/components/parameters/ServiceId'}
@@ -580,7 +580,7 @@ paths:
               type: object
               additionalProperties: false
               properties:
-                allowed_ip: {type: string, format: ipv4}
+                allowed_ip: {type: string, format: ipv4, description: Public IPv4 only; private and reserved ranges are rejected.}
               required: [allowed_ip]
       responses:
         '200': {description: Allowed IPv4 address changed}
@@ -588,7 +588,7 @@ paths:
         '415': {description: Content-Type must be application/json}
         '422': {$ref: '#/components/responses/Unprocessable'}
         '503':
-          description: Service operation unavailable
+          description: Service operation unavailable. Uncertain remote-first mutation outcomes use radio_ip_reconciliation_required with reconciliation_required=true.
           content:
             application/json:
               schema: {$ref: '#/components/schemas/Error'}
@@ -596,7 +596,7 @@ paths:
     get:
       tags: [Services]
       summary: List fresh Radio endpoints in the owned JTS3 service Zone
-      description: Preview operation. Only fresh HTTP/HTTPS public URLs are returned; node metadata is excluded.
+      description: Preview operation. Only fresh HTTP/HTTPS public URLs without embedded user/password credentials are returned; node metadata is excluded.
       x-mssv-scope: services:read
       parameters:
         - {$ref: '#/components/parameters/ServiceId'}
@@ -1203,6 +1203,7 @@ components:
       properties:
         ok: {type: boolean, const: false}
         error: {type: string}
+        reconciliation_required: {type: boolean, description: Present and true when operator reconciliation is required before a safe retry.}
       required: [ok, error]
   responses:
     Unauthorized:
@@ -1227,6 +1228,11 @@ components:
           schema: {$ref: '#/components/schemas/Error'}
     Unprocessable:
       description: Validation or business-rule failure
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/Error'}
+    ServiceUnavailable:
+      description: Temporary service or authentication-backend unavailability. Preview endpoints may return authentication_unavailable.
       content:
         application/json:
           schema: {$ref: '#/components/schemas/Error'}
