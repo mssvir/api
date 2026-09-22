@@ -66,6 +66,10 @@ MSSV does not currently apply a requests-per-minute limiter to the public Machin
 | `security:manage` | Manage owner sessions and password |
 | `verification:manage` | Read and perform phone/email verification |
 
+## D13 preview scope reuse
+
+The separately documented [D13 API preview](api-preview.md) introduces **no new token scopes**. Its candidate capability endpoint reuses `account:read`; TeaSpeak/Radio reads reuse `services:read`; and guarded port, whitelist and Radio-IP writes reuse `services:manage`. These preview uses do not become production permissions until the candidate contract is deployed and accepted.
+
 ## Authentication-related errors
 
 | HTTP | Error | Meaning |
