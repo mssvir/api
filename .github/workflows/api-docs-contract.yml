@@ -1,0 +1,50 @@
+name: API documentation contract
+on:
+  pull_request:
+  push:
+    branches: [main, docs/d13-api-preview-20260922]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate OpenAPI YAML and operation boundaries
+        run: |
+          set -Eeuo pipefail
+          ruby <<'RUBY'
+          require 'yaml'
+          methods=%w[get post put patch delete options head trace]
+          current=YAML.load_file('openapi/openapi.yaml')
+          preview=YAML.load_file('openapi/openapi-preview.yaml')
+          raise 'current_openapi_version' unless current['openapi']=='3.1.0'
+          raise 'preview_openapi_version' unless preview['openapi']=='3.1.0'
+          count=->(doc){doc.fetch('paths').sum{|_,item| item.keys.count{|k| methods.include?(k)}}}
+          raise "current_operation_count=#{count.call(current)}" unless count.call(current)==41
+          raise "preview_operation_count=#{count.call(preview)}" unless count.call(preview)==53
+          added=[
+            '/capabilities',
+            '/services/{id}/teaspeak',
+            '/services/{id}/teaspeak/clients',
+            '/services/{id}/teaspeak/channels',
+            '/services/{id}/teaspeak/ports',
+            '/services/{id}/teaspeak/whitelist',
+            '/services/{id}/teaspeak/whitelist/{rule_id}',
+            '/services/{id}/radio/ip',
+            '/services/{id}/radio/endpoints'
+          ]
+          added.each do |path|
+            raise "preview_path_missing:#{path}" unless preview.fetch('paths').key?(path)
+            raise "preview_leaked_into_current:#{path}" if current.fetch('paths').key?(path)
+          end
+          puts "CURRENT_OPERATIONS=#{count.call(current)}"
+          puts "PREVIEW_OPERATIONS=#{count.call(preview)}"
+          RUBY
+      - name: Validate preview labeling
+        run: |
+          set -Eeuo pipefail
+          grep -Fq 'not production endpoints yet' docs/api-preview.md
+          grep -Fq 'current production 41-operation contract' docs/api-reference.md
+          grep -Fq 'preview operations must not be treated as live' README.md
