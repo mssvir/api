@@ -61,6 +61,8 @@ my-system:service-123:restart:20260917T120000Z
 
 Never use secrets or personal data inside an idempotency key.
 
+The [D13 API preview](api-preview.md) uses a stronger pending-claim rule for its 12 candidate operations: completed results are replayed for 24 hours, but an unresolved pending claim is not automatically expired or re-executed after an uncertain side effect. The preview also uses `503 authentication_unavailable` for redacted authentication-backend failures and `503 radio_ip_reconciliation_required` with `reconciliation_required=true` when a remote-first Radio IP mutation has an uncertain outcome. That behavior is preview-only until the D13 contract is accepted in production.
+
 ## Temporary release barriers
 
 During a controlled MSSV cutover, state-changing requests can temporarily return `503` with an error such as `cutover_syncing` or `cutover_rollback` and may include `Retry-After`. Clients should respect the retry interval and retry safely with the same idempotency key where the operation supports idempotency.

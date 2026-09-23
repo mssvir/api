@@ -4,6 +4,14 @@ All notable public MSSV API documentation changes are recorded here.
 
 The public API is served from `https://api.mssv.ir/v1/`.
 
+## 2026-09-22 — D13 API preview documentation
+
+- Added a separately labeled **candidate** OpenAPI contract for 12 D13 customer service operations, bringing the preview to 53 operations while leaving the 41-operation production specification unchanged.
+- Documented TeaSpeak state/metrics, projected clients/channels, port state/change, customer whitelist CRUD, Radio allowed-IP change, Zone Radio endpoint discovery and capability discovery.
+- Documented strict account ownership, source-IP/scopes, public field projection, exact pagination validation and pending idempotency reconciliation semantics.
+- Kept admin, Agent, infrastructure, Radio upload and payment-gateway interfaces outside the public Machine API.
+- This entry records documentation of a source-reviewed candidate only; it does **not** claim the preview endpoints are deployed.
+
 ## 2026-09-18 — Zone-only service placement contract
 
 - Made `zone_id` the only public placement input for order creation.

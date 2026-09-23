@@ -1,0 +1,75 @@
+name: API documentation contract
+on:
+  pull_request:
+  push:
+    branches: [main, docs/d13-api-preview-20260922]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate OpenAPI YAML and operation boundaries
+        run: |
+          set -Eeuo pipefail
+          ruby <<'RUBY'
+          require 'yaml'
+          methods=%w[get post put patch delete options head trace]
+          current=YAML.load_file('openapi/openapi.yaml')
+          preview=YAML.load_file('openapi/openapi-preview.yaml')
+          raise 'current_openapi_version' unless current['openapi']=='3.1.0'
+          raise 'preview_openapi_version' unless preview['openapi']=='3.1.0'
+          ops=->(doc){
+            out={}
+            doc.fetch('paths').each do |path,item|
+              item.each do |method,op|
+                next unless methods.include?(method)
+                params=Array(op['parameters'])
+                idem=params.any?{|p| p.is_a?(Hash) && p['$ref']=='#/components/parameters/IdempotencyKey'}
+                out[[method.upcase,path]]={'scope'=>op['x-mssv-scope'],'idempotency'=>idem}
+              end
+            end
+            out
+          }
+          current_ops=ops.call(current)
+          preview_ops=ops.call(preview)
+          raise "current_operation_count=#{current_ops.length}" unless current_ops.length==41
+          raise "preview_operation_count=#{preview_ops.length}" unless preview_ops.length==53
+          current_ops.each do |key,meta|
+            raise "preview_changed_current_operation:#{key.join(' ')}" unless preview_ops[key]==meta
+          end
+          extras=preview_ops.reject{|key,_| current_ops.key?(key)}
+          expected={
+            ['GET','/capabilities']=>{'scope'=>'account:read','idempotency'=>false},
+            ['GET','/services/{id}/teaspeak']=>{'scope'=>'services:read','idempotency'=>false},
+            ['GET','/services/{id}/teaspeak/clients']=>{'scope'=>'services:read','idempotency'=>false},
+            ['GET','/services/{id}/teaspeak/channels']=>{'scope'=>'services:read','idempotency'=>false},
+            ['GET','/services/{id}/teaspeak/ports']=>{'scope'=>'services:read','idempotency'=>false},
+            ['POST','/services/{id}/teaspeak/ports']=>{'scope'=>'services:manage','idempotency'=>true},
+            ['GET','/services/{id}/teaspeak/whitelist']=>{'scope'=>'services:read','idempotency'=>false},
+            ['POST','/services/{id}/teaspeak/whitelist']=>{'scope'=>'services:manage','idempotency'=>true},
+            ['POST','/services/{id}/teaspeak/whitelist/{rule_id}']=>{'scope'=>'services:manage','idempotency'=>true},
+            ['DELETE','/services/{id}/teaspeak/whitelist/{rule_id}']=>{'scope'=>'services:manage','idempotency'=>true},
+            ['POST','/services/{id}/radio/ip']=>{'scope'=>'services:manage','idempotency'=>true},
+            ['GET','/services/{id}/radio/endpoints']=>{'scope'=>'services:read','idempotency'=>false}
+          }
+          unless extras==expected
+            warn "EXTRA_ACTUAL=#{extras.inspect}"
+            warn "EXTRA_EXPECTED=#{expected.inspect}"
+            raise 'preview_extra_contract_mismatch'
+          end
+          expected.keys.map(&:last).uniq.each do |path|
+            raise "preview_leaked_into_current:#{path}" if current.fetch('paths').key?(path)
+          end
+          puts "CURRENT_OPERATIONS=#{current_ops.length}"
+          puts "PREVIEW_OPERATIONS=#{preview_ops.length}"
+          puts "PREVIEW_EXTRA_CONTRACTS=#{extras.length}"
+          RUBY
+      - name: Validate preview labeling
+        run: |
+          set -Eeuo pipefail
+          grep -Fq 'not production endpoints yet' docs/api-preview.md
+          grep -Fq 'current production 41-operation contract' docs/api-reference.md
+          grep -Fq 'preview operations must not be treated as live' README.md

@@ -6,6 +6,8 @@ Base URL: `https://api.mssv.ir/v1/`
 
 All endpoints below use Bearer authentication unless explicitly documented otherwise. Every active token requires at least one allowed source IP/CIDR. The public Machine API is account-scoped: customer resources are checked against the account associated with the token.
 
+This page describes the **current production 41-operation contract**. The source-reviewed 12-operation D13 extension is documented separately in [D13 API preview](api-preview.md) and is not yet a production contract.
+
 ## Account
 
 | Method | Path | Scope | Idempotency |
