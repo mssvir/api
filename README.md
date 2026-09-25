@@ -61,7 +61,7 @@ Customers can update the allowed IP/CIDR list for an active Machine API token fr
 
 This repository documents the public customer-facing Machine API. Internal MSSV control-plane, node-agent, administrative, infrastructure and production-only interfaces are intentionally excluded.
 
-The current Production contract contains **53 operations** in `openapi/openapi.yaml`: 41 base operations plus 12 accepted TeaSpeak/Radio service operations. This repository publishes only the current supported Production contract; superseded preview/legacy specifications are not retained as alternate API contracts.
+The current **53-operation Production contract** in `openapi/openapi.yaml` consists of 41 base operations plus 12 accepted TeaSpeak/Radio service operations. This repository publishes only the current supported Production contract; superseded preview/legacy specifications are not retained as alternate API contracts.
 
 ## Website and account access
 
