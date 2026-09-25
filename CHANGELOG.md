@@ -4,6 +4,14 @@ All notable public MSSV API documentation changes are recorded here.
 
 The public API is served from `https://api.mssv.ir/v1/`.
 
+## 2026-09-25 — 53-operation Production contract
+
+- Promoted the accepted TeaSpeak/Radio extension surface into the single current Production OpenAPI contract, for **53 total operations**.
+- Removed the obsolete alternate preview OpenAPI/documentation files after Production acceptance.
+- Made `openapi/openapi.yaml`, the API reference, authentication/error documentation and current Production implementation one synchronized contract.
+- Adopted a current-contract-only policy: approved API changes replace obsolete behavior; backward-compatibility aliases, legacy fields, fallback paths and duplicate deprecated endpoints are not retained unless explicitly approved.
+- Added/updated contract CI so stale 41-operation/preview labeling fails validation.
+
 ## 2026-09-22 — D13 API preview documentation
 
 - Added a separately labeled **candidate** OpenAPI contract for 12 D13 customer service operations, bringing the preview to 53 operations while leaving the 41-operation production specification unchanged.

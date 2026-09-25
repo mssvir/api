@@ -6,7 +6,7 @@ Base URL: `https://api.mssv.ir/v1/`
 
 All endpoints below use Bearer authentication unless explicitly documented otherwise. Every active token requires at least one allowed source IP/CIDR. The public Machine API is account-scoped: customer resources are checked against the account associated with the token.
 
-This page describes the **current production 41-operation contract**. The source-reviewed 12-operation D13 extension is documented separately in [D13 API preview](api-preview.md) and is not yet a production contract.
+This page describes the **current production 53-operation contract**: 41 base operations plus 12 accepted TeaSpeak/Radio service operations. Detailed behavior for the service-specific extension surface is documented in [TeaSpeak and Radio service extensions](service-extensions.md).
 
 ## Account
 
@@ -85,6 +85,25 @@ GET /services/{id}/secret?key=SECRET_KEY_NAME
 ```
 
 Only request known keys required by your integration. Secret responses should never be logged.
+
+## Capabilities, TeaSpeak and Radio service operations
+
+| Method | Path | Scope | Idempotency |
+|---|---|---|---|
+| GET | `/capabilities` | `account:read` | No |
+| GET | `/services/{id}/teaspeak` | `services:read` | No |
+| GET | `/services/{id}/teaspeak/clients` | `services:read` | No |
+| GET | `/services/{id}/teaspeak/channels` | `services:read` | No |
+| GET | `/services/{id}/teaspeak/ports` | `services:read` | No |
+| POST | `/services/{id}/teaspeak/ports` | `services:manage` | Required |
+| GET | `/services/{id}/teaspeak/whitelist` | `services:read` | No |
+| POST | `/services/{id}/teaspeak/whitelist` | `services:manage` | Required |
+| POST | `/services/{id}/teaspeak/whitelist/{rule_id}` | `services:manage` | Required |
+| DELETE | `/services/{id}/teaspeak/whitelist/{rule_id}` | `services:manage` | Required |
+| POST | `/services/{id}/radio/ip` | `services:manage` | Required |
+| GET | `/services/{id}/radio/endpoints` | `services:read` | No |
+
+These operations use the same Machine API authentication, mandatory source-IP policy, account ownership checks and existing scopes as the base contract. For field projection, port/whitelist rules, Radio reconciliation behavior and endpoint-specific validation, see [TeaSpeak and Radio service extensions](service-extensions.md).
 
 ## Invoices and billing
 

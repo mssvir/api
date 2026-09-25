@@ -1,12 +1,10 @@
-# MSSV Machine API v1 — D13 preview contract
+# MSSV Machine API v1 — TeaSpeak and Radio service extensions
 
-This page documents the **candidate** D13 customer API extension. These 12 operations are source-reviewed and tested in the private MSSV release candidate, but they are **not production endpoints yet**. The current live contract remains the 41-operation API documented in [API reference](api-reference.md) and [openapi/openapi.yaml](../openapi/openapi.yaml).
-
-Candidate OpenAPI: [openapi/openapi-preview.yaml](../openapi/openapi-preview.yaml)
+This page documents the **current Production** TeaSpeak/Radio extension surface. These 12 accepted operations are part of the live 53-operation Machine API contract documented in [API reference](api-reference.md) and [openapi/openapi.yaml](../openapi/openapi.yaml).
 
 ## Coverage
 
-The preview raises the public operation count from **41 to 53** without adding admin/control-plane interfaces. It reuses existing Machine API authentication, source-IP policy, account ownership and scopes.
+The current extension raises the public operation count from **41 base operations to 53 total operations** without adding admin/control-plane interfaces. It reuses existing Machine API authentication, source-IP policy, account ownership and scopes.
 
 | Method | Path | Scope |
 |---|---|---|
@@ -37,8 +35,8 @@ Radio IP changes accept only public IPv4 addresses; private and reserved ranges 
 
 Authentication failures are distinguished from authentication-backend failures: a missing or invalid token remains `401 unauthorized`, an IP allowlist rejection remains `403 api_ip_not_allowed`, and an unexpected authentication subsystem failure is redacted as `503 authentication_unavailable`.
 
-All preview writes require `Idempotency-Key`. A key is claimed before the domain side effect. JSON object keys are canonicalized before request hashing, so reordering object properties does not create a false idempotency conflict. Completed responses are replayed for 24 hours. A claim that remains pending after an uncertain outcome is **not** automatically expired or re-executed; operators reconcile it and clients must keep the same key instead of forcing a second side effect.
+All extension writes require `Idempotency-Key`. A key is claimed before the domain side effect. JSON object keys are canonicalized before request hashing, so reordering object properties does not create a false idempotency conflict. Completed responses are replayed for 24 hours. A claim that remains pending after an uncertain outcome is **not** automatically expired or re-executed; operators reconcile it and clients must keep the same key instead of forcing a second side effect.
 
 ## Rollout state
 
-Promotion requires a fresh Main source/DB contract capture, MariaDB concurrency/crash tests for the claim table, a bounded release candidate diff, additive migration, cutover/rollback assets, authenticated ownership smoke tests and independent post-deploy verification. Until those gates pass, integrations must not assume the preview operations exist on `api.mssv.ir`.
+Promotion requires a fresh Main source/DB contract capture, MariaDB concurrency/crash tests for the claim table, a bounded release candidate diff, additive migration, cutover/rollback assets, authenticated ownership smoke tests and independent post-deploy verification. Until those gates pass, integrations must not assume the extension operations exist on `api.mssv.ir`.

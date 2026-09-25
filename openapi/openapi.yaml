@@ -1,13 +1,13 @@
 openapi: 3.1.0
 info:
   title: MSSV API
-  version: 1.2.0
-  summary: Official MSSV Machine API v1
+  version: 1.4.0
+  summary: Official MSSV Machine API v1 current Production contract
   description: >-
     Official public API for MSSV customer integrations. The Machine API provides
     scoped access to account information, profiles, products, orders, hosted
     services, billing, wallet and payment history, security, verification,
-    support tickets and team management. Official website: [www.mssv.ir](https://www.mssv.ir)
+    support tickets and team management, including the accepted TeaSpeak and Radio service operations in the current 53-operation Production contract. Official website: [www.mssv.ir](https://www.mssv.ir)
   contact:
     name: MSSV
     url: https://www.mssv.ir
@@ -329,6 +329,288 @@ paths:
               required: [confirm]
       responses:
         '200': {description: Termination result}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+  /capabilities:
+    get:
+      tags: [Account]
+      summary: Discover accepted Machine API capabilities
+      description: Current Production operation. Returns only capabilities accepted by the public contract after deployment.
+      x-mssv-scope: account:read
+      responses:
+        '503': {$ref: '#/components/responses/ServiceUnavailable'}
+        '200':
+          description: Capability discovery
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CapabilityResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+  /services/{id}/teaspeak:
+    get:
+      tags: [Services]
+      summary: Get TeaSpeak service state and projected metrics
+      description: Current Production operation. Raw node, Agent, credential and client identity fields are never returned.
+      x-mssv-scope: services:read
+      parameters:
+        - {$ref: '#/components/parameters/ServiceId'}
+      responses:
+        '200':
+          description: TeaSpeak public state
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/TeaSpeakStateResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+        '503':
+          description: Live observation unavailable or incomplete
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Error'}
+  /services/{id}/teaspeak/clients:
+    get:
+      tags: [Services]
+      summary: List projected TeaSpeak clients
+      description: Current Production operation. Client IP addresses and unique identifiers are excluded.
+      x-mssv-scope: services:read
+      parameters:
+        - {$ref: '#/components/parameters/ServiceId'}
+        - {$ref: '#/components/parameters/Page'}
+        - {$ref: '#/components/parameters/PerPage'}
+      responses:
+        '200':
+          description: Paginated projected client list
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/TeaSpeakClientListResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+        '503':
+          description: Live observation unavailable
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Error'}
+  /services/{id}/teaspeak/channels:
+    get:
+      tags: [Services]
+      summary: List projected TeaSpeak channels
+      description: Current Production operation.
+      x-mssv-scope: services:read
+      parameters:
+        - {$ref: '#/components/parameters/ServiceId'}
+        - {$ref: '#/components/parameters/Page'}
+        - {$ref: '#/components/parameters/PerPage'}
+      responses:
+        '200':
+          description: Paginated projected channel list
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/TeaSpeakChannelListResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+        '503':
+          description: Live observation unavailable
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Error'}
+  /services/{id}/teaspeak/ports:
+    get:
+      tags: [Services]
+      summary: Get public TeaSpeak port state
+      description: Current Production operation. File port is read-only.
+      x-mssv-scope: services:read
+      parameters:
+        - {$ref: '#/components/parameters/ServiceId'}
+      responses:
+        '503': {$ref: '#/components/responses/ServiceUnavailable'}
+        '200':
+          description: Public port state
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/TeaSpeakPortStateResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+    post:
+      tags: [Services]
+      summary: Request a TeaSpeak voice/query port change
+      description: Current Production operation. Uses the existing guarded reservation/preflight/queue flow with no admin override.
+      x-mssv-scope: services:manage
+      parameters:
+        - {$ref: '#/components/parameters/ServiceId'}
+        - {$ref: '#/components/parameters/IdempotencyKey'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                voice_port: {type: integer, minimum: 1, maximum: 65535}
+                query_port: {type: integer, minimum: 1, maximum: 65535}
+              required: [voice_port, query_port]
+      responses:
+        '200':
+          description: Requested ports already match
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PortChangeResponse'}
+        '202':
+          description: Guarded port change queued
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PortChangeResponse'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '415': {description: Content-Type must be application/json}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+        '503':
+          description: Service operation unavailable
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Error'}
+  /services/{id}/teaspeak/whitelist:
+    get:
+      tags: [Services]
+      summary: Get customer TeaSpeak whitelist state
+      description: Current Production operation. Returns a projected public state only.
+      x-mssv-scope: services:read
+      parameters:
+        - {$ref: '#/components/parameters/ServiceId'}
+      responses:
+        '503': {$ref: '#/components/responses/ServiceUnavailable'}
+        '200':
+          description: Projected whitelist state
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/WhitelistStateResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+    post:
+      tags: [Services]
+      summary: Create a customer TeaSpeak whitelist rule
+      description: Current Production operation. IPv4 only. Domain compensation is retained on apply failure.
+      x-mssv-scope: services:manage
+      parameters:
+        - {$ref: '#/components/parameters/ServiceId'}
+        - {$ref: '#/components/parameters/IdempotencyKey'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/WhitelistRuleInput'}
+      responses:
+        '201':
+          description: Rule created
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/WhitelistMutationResponse'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '415': {description: Content-Type must be application/json}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+        '503':
+          description: Apply or rollback failed; rollback failure includes reconciliation_required=true
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Error'}
+  /services/{id}/teaspeak/whitelist/{rule_id}:
+    post:
+      tags: [Services]
+      summary: Replace a customer TeaSpeak whitelist rule
+      description: Current Production operation.
+      x-mssv-scope: services:manage
+      parameters:
+        - {$ref: '#/components/parameters/ServiceId'}
+        - {$ref: '#/components/parameters/WhitelistRuleId'}
+        - {$ref: '#/components/parameters/IdempotencyKey'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/WhitelistRuleInput'}
+      responses:
+        '200':
+          description: Rule replaced
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/WhitelistMutationResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '415': {description: Content-Type must be application/json}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+        '503':
+          description: Apply or rollback failed
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Error'}
+    delete:
+      tags: [Services]
+      summary: Delete a customer TeaSpeak whitelist rule
+      description: Current Production operation. The request must be zero-length. An empty body does not require a Content-Type header; non-zero Content-Length or Transfer-Encoding is rejected.
+      x-mssv-scope: services:manage
+      parameters:
+        - {$ref: '#/components/parameters/ServiceId'}
+        - {$ref: '#/components/parameters/WhitelistRuleId'}
+        - {$ref: '#/components/parameters/IdempotencyKey'}
+      responses:
+        '200':
+          description: Rule deleted
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/DeleteResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '415': {description: Non-empty Content-Type, when supplied, must be application/json}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+        '503':
+          description: Apply or rollback failed
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Error'}
+  /services/{id}/radio/ip:
+    post:
+      tags: [Services]
+      summary: Change the allowed IPv4 address for a Radio service
+      description: Current Production operation. Only an owned radio service can be changed, and allowed_ip must be a public IPv4 address.
+      x-mssv-scope: services:manage
+      parameters:
+        - {$ref: '#/components/parameters/ServiceId'}
+        - {$ref: '#/components/parameters/IdempotencyKey'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                allowed_ip: {type: string, format: ipv4, description: Public IPv4 only; private and reserved ranges are rejected.}
+              required: [allowed_ip]
+      responses:
+        '200': {description: Allowed IPv4 address changed}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '415': {description: Content-Type must be application/json}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+        '503':
+          description: Service operation unavailable. Uncertain remote-first mutation outcomes use radio_ip_reconciliation_required with reconciliation_required=true.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Error'}
+  /services/{id}/radio/endpoints:
+    get:
+      tags: [Services]
+      summary: List fresh Radio endpoints in the owned JTS3 service Zone
+      description: Current Production operation. Only fresh canonical HTTPS public URLs without embedded credentials, query strings, fragments, or private/reserved literal-IP hosts are returned; node metadata is excluded. Missing JTS3 Zone mapping returns service_zone_unavailable.
+      x-mssv-scope: services:read
+      parameters:
+        - {$ref: '#/components/parameters/ServiceId'}
+      responses:
+        '503': {$ref: '#/components/responses/ServiceUnavailable'}
+        '200':
+          description: Fresh Zone Radio endpoint catalog
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/RadioEndpointListResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
         '409': {$ref: '#/components/responses/Conflict'}
         '422': {$ref: '#/components/responses/Unprocessable'}
   /invoices:
@@ -693,6 +975,11 @@ components:
       name: per_page
       in: query
       schema: {type: integer, enum: [25, 50, 100], default: 50}
+    WhitelistRuleId:
+      name: rule_id
+      in: path
+      required: true
+      schema: {type: integer, minimum: 1}
     ServiceId:
       name: id
       in: path
@@ -719,11 +1006,208 @@ components:
       required: true
       schema: {type: integer, minimum: 1}
   schemas:
+    CapabilityResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        ok: {type: boolean, const: true}
+        api_version: {type: string, const: v1}
+        service_contract: {type: string}
+        scopes: {type: array, items: {type: string}}
+        features: {type: array, items: {type: string}}
+        pagination:
+          type: object
+          properties:
+            page_sizes: {type: array, items: {type: integer}}
+            default_per_page: {type: integer}
+          required: [page_sizes, default_per_page]
+      required: [ok, api_version, service_contract, scopes, features, pagination]
+    TeaSpeakMetrics:
+      type: object
+      additionalProperties: false
+      properties:
+        virtualserver_name: {type: string}
+        virtualserver_status: {type: string}
+        virtualserver_maxclients: {type: integer}
+        virtualserver_clientsonline: {type: integer}
+        virtualserver_queryclientsonline: {type: integer}
+        virtualserver_channelsonline: {type: integer}
+        virtualserver_uptime: {type: integer}
+        virtualserver_total_ping: {type: [number, integer]}
+        virtualserver_total_packetloss_total: {type: [number, integer]}
+        virtualserver_total_bytes_uploaded: {type: integer}
+        virtualserver_total_bytes_downloaded: {type: integer}
+        virtualserver_month_bytes_uploaded: {type: integer}
+        virtualserver_month_bytes_downloaded: {type: integer}
+    TeaSpeakStateResponse:
+      type: object
+      properties:
+        ok: {type: boolean, const: true}
+        data:
+          type: object
+          properties:
+            service_id: {type: integer}
+            service_status: {type: string}
+            runtime_state: {type: string}
+            running: {type: boolean}
+            query_ok: {type: boolean}
+            observed_at: {type: [string, 'null']}
+            desired_slots: {type: [integer, 'null']}
+            actual_slots: {type: [integer, 'null']}
+            voice_clients: {type: integer}
+            query_clients: {type: integer}
+            metrics: {$ref: '#/components/schemas/TeaSpeakMetrics'}
+          required: [service_id, service_status, runtime_state, running, query_ok, desired_slots, actual_slots, voice_clients, query_clients, metrics]
+      required: [ok, data]
+    TeaSpeakClient:
+      type: object
+      additionalProperties: false
+      properties:
+        clid: {type: integer}
+        cid: {type: integer}
+        client_nickname: {type: string}
+        channel_name: {type: string}
+        client_type: {type: [integer, string]}
+        client_away: {type: [integer, string, boolean]}
+        client_idle_time: {type: [integer, string]}
+        client_input_muted: {type: [integer, string, boolean]}
+        client_output_muted: {type: [integer, string, boolean]}
+        client_flag_talking: {type: [integer, string, boolean]}
+    TeaSpeakChannel:
+      type: object
+      additionalProperties: false
+      properties:
+        cid: {type: integer}
+        pid: {type: integer}
+        channel_name: {type: string}
+        total_clients: {type: integer}
+    TeaSpeakClientListResponse:
+      allOf:
+        - {$ref: '#/components/schemas/PaginatedObservedBase'}
+        - type: object
+          properties:
+            data: {type: array, items: {$ref: '#/components/schemas/TeaSpeakClient'}}
+    TeaSpeakChannelListResponse:
+      allOf:
+        - {$ref: '#/components/schemas/PaginatedObservedBase'}
+        - type: object
+          properties:
+            data: {type: array, items: {$ref: '#/components/schemas/TeaSpeakChannel'}}
+    PaginatedObservedBase:
+      type: object
+      properties:
+        ok: {type: boolean, const: true}
+        data: {type: array}
+        page: {type: integer, minimum: 1}
+        per_page: {type: integer, enum: [25, 50, 100]}
+        total: {type: integer, minimum: 0}
+        pages: {type: integer, minimum: 1}
+        observed_at: {type: [string, 'null']}
+      required: [ok, data, page, per_page, total, pages]
+    TeaSpeakPortState:
+      type: object
+      additionalProperties: false
+      properties:
+        service_id: {type: integer}
+        voice_port: {type: integer}
+        query_port: {type: integer}
+        file_port: {type: integer}
+        state: {type: string}
+        voice_ranges: {}
+        query_ranges: {}
+        pending_port_change: {}
+    TeaSpeakPortStateResponse:
+      type: object
+      properties:
+        ok: {type: boolean, const: true}
+        data: {$ref: '#/components/schemas/TeaSpeakPortState'}
+      required: [ok, data]
+    PortChangeResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        ok: {type: boolean, const: true}
+        changed: {type: boolean}
+        job_id: {type: [integer, 'null']}
+      required: [ok, changed, job_id]
+    WhitelistRule:
+      type: object
+      additionalProperties: false
+      properties:
+        id: {type: integer}
+        service_id: {type: integer}
+        port_kind: {type: string, enum: [voice, query]}
+        ip: {type: string, format: ipv4}
+        max_connections: {type: [integer, 'null'], minimum: 1, maximum: 10000}
+        enabled: {type: [integer, boolean]}
+        created_at: {type: string}
+        updated_at: {type: string}
+        port: {type: integer}
+    WhitelistRuleInput:
+      type: object
+      additionalProperties: false
+      properties:
+        ip: {type: string, format: ipv4}
+        port_kind: {type: string, enum: [voice, query]}
+        limit_mode: {type: string, enum: [limited, unlimited]}
+        max_connections: {type: integer, minimum: 1, maximum: 10000}
+        enabled: {type: boolean}
+      required: [ip, port_kind, limit_mode]
+    WhitelistStateResponse:
+      type: object
+      properties:
+        ok: {type: boolean, const: true}
+        data:
+          type: object
+          additionalProperties: false
+          properties:
+            available: {type: boolean}
+            voice_port: {type: integer}
+            query_port: {type: integer}
+            mapping_state: {type: string}
+            service_status: {type: string}
+            max_connections: {type: integer}
+            rules: {type: array, items: {$ref: '#/components/schemas/WhitelistRule'}}
+          required: [rules]
+      required: [ok, data]
+    WhitelistMutationResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        ok: {type: boolean, const: true}
+        rule: {$ref: '#/components/schemas/WhitelistRule'}
+      required: [ok, rule]
+    DeleteResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        ok: {type: boolean, const: true}
+        deleted: {type: boolean, const: true}
+      required: [ok, deleted]
+    RadioEndpoint:
+      type: object
+      additionalProperties: false
+      properties:
+        id: {type: integer}
+        slug: {type: string}
+        display_name: {type: string}
+        public_url: {type: string, format: uri}
+        mp3_count: {type: integer, minimum: 0}
+        last_seen_at: {type: string}
+    RadioEndpointListResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        ok: {type: boolean, const: true}
+        data: {type: array, items: {$ref: '#/components/schemas/RadioEndpoint'}}
+        fresh_seconds: {type: integer, minimum: 1}
+      required: [ok, data, fresh_seconds]
     Error:
       type: object
       properties:
         ok: {type: boolean, const: false}
         error: {type: string}
+        reconciliation_required: {type: boolean, description: Present and true when operator reconciliation is required before a safe retry.}
       required: [ok, error]
   responses:
     Unauthorized:
@@ -748,6 +1232,11 @@ components:
           schema: {$ref: '#/components/schemas/Error'}
     Unprocessable:
       description: Validation or business-rule failure
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/Error'}
+    ServiceUnavailable:
+      description: Temporary service or authentication-backend unavailability. Current service-extension endpoints may return authentication_unavailable.
       content:
         application/json:
           schema: {$ref: '#/components/schemas/Error'}

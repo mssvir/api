@@ -1,36 +1,49 @@
-# API Versioning Policy
+# API Versioning and Current-Contract Policy
 
-The public MSSV Machine API is versioned in the URL.
-
-Current base URL:
+The public MSSV Machine API uses the canonical URL namespace:
 
 ```text
 https://api.mssv.ir/v1/
 ```
 
-`/v1/` is the only supported public Machine API namespace. Unsupported historical or alternate paths are not aliases and are expected to return `404` unless MSSV explicitly documents a compatibility mechanism in a future release.
+`/v1/` is the only supported public Machine API namespace.
 
-## Compatibility within v1
+## Current contract only
 
-Within `v1`, MSSV aims to keep documented integrations stable when adding new optional fields, response properties, endpoints, actions or enum values. This does not create alternate URL namespaces or legacy-path redirects.
+The contract documented on `main` is the contract currently accepted in Production. **No backward-compatibility layer is retained** when an approved API change replaces an older contract.
+
+This means MSSV does not keep, unless an explicit exception is approved:
+
+- legacy or alternate URL aliases
+- deprecated duplicate endpoints
+- obsolete request or response fields
+- old enum/value fallbacks
+- redirects to historical API paths
+- parallel preview specifications after Production acceptance
+- runtime branches whose only purpose is compatibility with an obsolete contract
+
+Git history preserves previous contracts. It is not a supported runtime compatibility surface.
+
+## Client responsibility
 
 Clients should:
 
-- ignore unknown response properties
+- follow the current OpenAPI and Markdown documentation
+- ignore unknown response properties where the current schema permits them
 - avoid depending on undocumented fields
 - use documented scopes and endpoint contracts
-- use the service's returned `available_actions` rather than hard-coding runtime assumptions
+- use returned `available_actions` instead of hard-coding runtime assumptions
 
-## Breaking changes
+An approved breaking change can require clients to update. MSSV updates the implementation and documentation as one current release rather than carrying an obsolete behavior path forward.
 
-A change that requires existing clients to change request structure, authentication behavior or core response semantics should be documented before release. A new compatibility layer or alternate version/path is not introduced unless MSSV explicitly decides to provide one.
+## Release synchronization
 
-## Documentation updates
+A public API change is not complete until the same current contract is reflected in:
 
-Public API implementation changes should update, in the same release cycle:
-
-1. `openapi/openapi.yaml`
-2. the relevant Markdown documentation
-3. `CHANGELOG.md`
+1. the accepted MSSV Production implementation and route registries
+2. `openapi/openapi.yaml`
+3. the relevant Markdown reference/authentication/error documentation
+4. `CHANGELOG.md`
+5. the cross-repository synchronization guard in `mssvir/mssv_private`
 
 The official MSSV website is [www.mssv.ir](https://www.mssv.ir).

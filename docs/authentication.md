@@ -66,11 +66,11 @@ MSSV does not currently apply a requests-per-minute limiter to the public Machin
 | `security:manage` | Manage owner sessions and password |
 | `verification:manage` | Read and perform phone/email verification |
 
-## D13 preview scope reuse
+## TeaSpeak and Radio service scope reuse
 
-The separately documented [D13 API preview](api-preview.md) introduces **no new token scopes**. Its candidate capability endpoint reuses `account:read`; TeaSpeak/Radio reads reuse `services:read`; and guarded port, whitelist and Radio-IP writes reuse `services:manage`. These preview uses do not become production permissions until the candidate contract is deployed and accepted.
+The current [TeaSpeak and Radio service extensions](service-extensions.md) introduce **no new token scopes**. Capability discovery reuses `account:read`; TeaSpeak/Radio reads reuse `services:read`; and guarded port, whitelist and Radio-IP writes reuse `services:manage`.
 
-For the preview endpoints, an unexpected authentication subsystem failure is not reported as a bad token. It is redacted and returned as HTTP `503` with `authentication_unavailable`; callers should retain the same idempotency key for any write they later retry.
+For these Production endpoints, an unexpected authentication subsystem failure is not reported as a bad token. It is redacted and returned as HTTP `503` with `authentication_unavailable`; callers should retain the same idempotency key for any write they later retry.
 
 ## Authentication-related errors
 
