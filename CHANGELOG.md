@@ -2,13 +2,23 @@
 
 All notable public MSSV API documentation changes are recorded here.
 
-The public API is served from `https://api.mssv.ir/v1/`.
+The authenticated Machine API is served from `https://api.mssv.ir/v1/`. Read-only public Radio discovery is served separately from `https://api.mssv.ir/radio/*`.
+
+## 2026-10-16 — Public Radio API split
+
+- Added the dedicated read-only Public Radio API on `api.mssv.ir`.
+- Added `GET /radio/endpoints`, returning only a JSON array of public endpoint filenames.
+- Added `GET /radio/listeners`, returning only the public listener total and per-public-endpoint counts.
+- Explicitly excluded domains, protocols, full stream URLs, whitelisted/source IPs, custom-domain analytics, service/customer/account IDs, node IDs and infrastructure topology from the public contract.
+- Added the dedicated `openapi/public-radio.yaml` OpenAPI 3.1 document because these two unauthenticated routes are intentionally outside the authenticated Machine API `/v1/` security model.
+- Documented removal of the superseded `www.mssv.ir/api/radio/endpoints` and `/radio-stream-listeners` public paths; no compatibility aliases are part of the current contract.
+- The authenticated Machine API remains the existing 53-operation `/v1/` contract with Bearer/scopes and mandatory source-IP policy.
 
 ## 2026-09-25 — 53-operation Production contract
 
-- Promoted the accepted TeaSpeak/Radio extension surface into the single current Production OpenAPI contract, for **53 total operations**.
+- Promoted the accepted TeaSpeak/Radio extension surface into the single current Production Machine API contract, for **53 total operations**.
 - Removed the obsolete alternate preview OpenAPI/documentation files after Production acceptance.
-- Made `openapi/openapi.yaml`, the API reference, authentication/error documentation and current Production implementation one synchronized contract.
+- Made `openapi/openapi.yaml`, the API reference, authentication/error documentation and current Production implementation one synchronized Machine API contract.
 - Adopted a current-contract-only policy: approved API changes replace obsolete behavior; backward-compatibility aliases, legacy fields, fallback paths and duplicate deprecated endpoints are not retained unless explicitly approved.
 - Added/updated contract CI so stale 41-operation/preview labeling fails validation.
 
@@ -24,7 +34,7 @@ The public API is served from `https://api.mssv.ir/v1/`.
 
 - Made `zone_id` the only public placement input for order creation.
 - Removed the obsolete `deployment_target_id` request field from `POST /orders`.
-- MSSV now resolves a compatible Node internally from the selected Zone, service type and current availability.
+- MSSV now resolves a compatible Node internally from the selected Zone and service availability.
 - No compatibility field or legacy placement alias is retained.
 - Updated the OpenAPI document version to `1.2.0`; the public API namespace remains `https://api.mssv.ir/v1/`.
 
@@ -34,12 +44,11 @@ The public API is served from `https://api.mssv.ir/v1/`.
 - Removed the unused `/api/machine/v1` compatibility redirect before any Machine API user existed; `/v1/` is the only supported public Machine API namespace.
 - Standardized official website links to [www.mssv.ir](https://www.mssv.ir).
 - Linked account-management references to the [MSSV client area](https://my.mssv.ir/) and API-token references to [Machine API token management](https://my.mssv.ir/machine-users/).
-- Added safe server-side intended-destination handling so customers return to the originally requested internal page after successful login and any required verification.
 - Updated the OpenAPI contract to remove the obsolete `429 RateLimited` response from the current no-RPM-limit Machine API policy.
 
 ## 2026-09-17 — Dedicated API edge and mandatory source-IP policy
 
-- Initially staged the dedicated API edge while the public namespace was being finalized; the final production namespace is `https://api.mssv.ir/v1/`.
+- Initially staged the dedicated API edge while the public namespace was being finalized; the final Production Machine API namespace is `https://api.mssv.ir/v1/`.
 - Made the IPv4/IPv6/CIDR allowlist mandatory for every active Machine API token.
 - Added customer self-service editing for token name, scopes and source-IP allowlist.
 - Documented trusted CDN real-client-IP handling and fail-closed origin access.
@@ -56,4 +65,4 @@ The public API is served from `https://api.mssv.ir/v1/`.
 - Documented public endpoints for account, profile, products, orders, services, invoices, billing, wallet, payments, security sessions, verification, tickets and team management.
 - Added cURL examples and links to the official MSSV website at [www.mssv.ir](https://www.mssv.ir).
 
-Future public API changes should update this file, `openapi/openapi.yaml`, and the relevant Markdown reference in the same release cycle.
+Future public API changes should update this file, the relevant OpenAPI contract, and the relevant Markdown reference in the same release cycle.
