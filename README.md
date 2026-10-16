@@ -8,11 +8,13 @@ Official English documentation and OpenAPI specification for the **MSSV API**.
 
 MSSV provides hosting and service-management automation through a versioned Machine API. The API can be used to integrate customer systems with MSSV for account information, products, orders, hosted services, billing, wallet history, support tickets, team management, account security, and verification workflows.
 
+MSSV also exposes a deliberately small unauthenticated Radio read surface on the same API hostname. It is separate from the versioned Machine API and publishes only the public endpoint directory and public listener counters.
+
 **Official website:** [www.mssv.ir](https://www.mssv.ir)
 
 **API hostname:** `https://api.mssv.ir`
 
-**API base URL:** `https://api.mssv.ir/v1/`
+**Machine API base URL:** `https://api.mssv.ir/v1/`
 
 ## Documentation
 
@@ -20,10 +22,11 @@ MSSV provides hosting and service-management automation through a versioned Mach
 - [Authentication and scopes](docs/authentication.md)
 - [API reference](docs/api-reference.md)
 - [TeaSpeak and Radio service extensions](docs/service-extensions.md)
+- [Public Radio API](docs/radio-public.md)
 - [Errors and idempotency](docs/errors.md)
 - [Versioning policy](docs/versioning.md)
 - [cURL examples](examples/curl.md)
-- [OpenAPI 3.1 production specification](openapi/openapi.yaml)
+- [OpenAPI 3.1 Machine API production specification](openapi/openapi.yaml)
 - [Changelog](CHANGELOG.md)
 - [Security policy](SECURITY.md)
 
@@ -39,9 +42,18 @@ curl -sS https://api.mssv.ir/v1/me \
 
 A successful response uses JSON and includes `"ok": true`.
 
+The public Radio read APIs do not use Machine API authentication:
+
+```bash
+curl -sS https://api.mssv.ir/radio/endpoints
+curl -sS https://api.mssv.ir/radio/listeners
+```
+
+See [Public Radio API](docs/radio-public.md) for the intentionally minimal response contracts.
+
 ## API security model
 
-The public Machine API currently uses:
+The authenticated Machine API currently uses:
 
 - a dedicated `api.mssv.ir` hostname behind MSSV's CDN edge
 - Bearer-token authentication
@@ -57,11 +69,13 @@ The public Machine API currently uses:
 
 Customers can update the allowed IP/CIDR list for an active Machine API token from [Machine API token management](https://my.mssv.ir/machine-users/). Origin allowlist reconciliation is automatic.
 
+The unauthenticated public Radio read surface is deliberately data-minimized: it does not publish customer, service, node, whitelisted-IP, custom-domain, protocol, or infrastructure metadata.
+
 ## Public API scope
 
-This repository documents the public customer-facing Machine API. Internal MSSV control-plane, node-agent, administrative, infrastructure and production-only interfaces are intentionally excluded.
+This repository documents both the public customer-facing Machine API and the intentionally minimal public Radio read APIs. Internal MSSV control-plane, node-agent, administrative, infrastructure and production-only interfaces are intentionally excluded.
 
-The current **53-operation Production contract** in `openapi/openapi.yaml` consists of 41 base operations plus 12 accepted TeaSpeak/Radio service operations. This repository publishes only the current supported Production contract; superseded preview/legacy specifications are not retained as alternate API contracts.
+The current **53-operation Machine API Production contract** in `openapi/openapi.yaml` consists of 41 base operations plus 12 accepted TeaSpeak/Radio service operations. The two unversioned public Radio reads are documented separately and do not change that 53-operation Machine API count.
 
 ## Website and account access
 
@@ -69,7 +83,7 @@ For MSSV services and current product information, visit **[www.mssv.ir](https:/
 
 ## Source of truth
 
-This repository is the canonical public API documentation surface and is maintained against the accepted MSSV Production implementation in `mssvir/mssv_private`. The current contract is **53 operations** and must match Production before an API-affecting release is considered complete.
+This repository is the canonical public API documentation surface and is maintained against the accepted MSSV Production implementation in `mssvir/mssv_private`. The Machine API contract is **53 operations**; public Radio reads are documented separately. Documentation must match Production before an API-affecting release is considered complete.
 
 ## Current-contract-only policy
 
