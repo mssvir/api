@@ -2,7 +2,16 @@
 
 All notable public MSSV API documentation changes are recorded here.
 
-The public API is served from `https://api.mssv.ir/v1/`.
+The authenticated Machine API is served from `https://api.mssv.ir/v1/`. Intentionally minimal unauthenticated public reads, when documented, live outside `/v1/` on the same API hostname.
+
+## 2026-10-16 — Public Radio read split
+
+- Added `GET https://api.mssv.ir/radio/endpoints` as the canonical unauthenticated public Radio directory; its response is a JSON array of endpoint `.mp3` filenames only.
+- Added `GET https://api.mssv.ir/radio/listeners` as a separate unauthenticated public listener read containing only aggregate `total` and per-public-endpoint counts.
+- Explicitly excluded hostname/protocol/full URL, whitelisted IPs, custom domains, service/customer/account identifiers, node identity and infrastructure topology from the public Radio contract.
+- Removed the superseded website-facing `https://www.mssv.ir/api/radio/endpoints` and `https://www.mssv.ir/radio-stream-listeners` paths rather than preserving compatibility aliases.
+- Documented APCu/Redis hot-cache behavior and the distinction between these two public reads and the authenticated 53-operation Machine API under `/v1/`.
+- Documented `https://www.mssv.ir/radio-stream.html` as a consumer of the two public Radio APIs.
 
 ## 2026-09-25 — 53-operation Production contract
 
@@ -34,17 +43,16 @@ The public API is served from `https://api.mssv.ir/v1/`.
 - Removed the unused `/api/machine/v1` compatibility redirect before any Machine API user existed; `/v1/` is the only supported public Machine API namespace.
 - Standardized official website links to [www.mssv.ir](https://www.mssv.ir).
 - Linked account-management references to the [MSSV client area](https://my.mssv.ir/) and API-token references to [Machine API token management](https://my.mssv.ir/machine-users/).
-- Added safe server-side intended-destination handling so customers return to the originally requested internal page after successful login and any required verification.
 - Updated the OpenAPI contract to remove the obsolete `429 RateLimited` response from the current no-RPM-limit Machine API policy.
 
 ## 2026-09-17 — Dedicated API edge and mandatory source-IP policy
 
-- Initially staged the dedicated API edge while the public namespace was being finalized; the final production namespace is `https://api.mssv.ir/v1/`.
+- Initially staged the dedicated API edge while the public namespace was being finalized; the final production Machine API namespace is `https://api.mssv.ir/v1/`.
 - Made the IPv4/IPv6/CIDR allowlist mandatory for every active Machine API token.
 - Added customer self-service editing for token name, scopes and source-IP allowlist.
 - Documented trusted CDN real-client-IP handling and fail-closed origin access.
 - Added aggregate Nginx IP filtering in front of the exact token-to-IP application check.
-- Removed the MSSV Machine API requests-per-minute limiter from the public API contract.
+- Removed the MSSV Machine API requests-per-minute limiter from the public Machine API contract.
 - Retained permission scopes, ownership checks and idempotency controls.
 
 ## 2026-09-17 — Initial documentation release
@@ -56,4 +64,4 @@ The public API is served from `https://api.mssv.ir/v1/`.
 - Documented public endpoints for account, profile, products, orders, services, invoices, billing, wallet, payments, security sessions, verification, tickets and team management.
 - Added cURL examples and links to the official MSSV website at [www.mssv.ir](https://www.mssv.ir).
 
-Future public API changes should update this file, `openapi/openapi.yaml`, and the relevant Markdown reference in the same release cycle.
+Future public API changes should update this file, the applicable OpenAPI/contract document, and the relevant Markdown reference in the same release cycle.
