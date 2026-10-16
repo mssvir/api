@@ -1,0 +1,101 @@
+openapi: 3.1.0
+info:
+  title: MSSV Public Radio API
+  version: 1.0.0
+  summary: Read-only public Radio endpoint and listener directory
+  description: >-
+    Public, unauthenticated, read-only Radio discovery endpoints served from
+    api.mssv.ir. This surface is intentionally separate from the authenticated
+    MSSV Machine API v1. It exposes only public endpoint filenames and public
+    aggregate listener counts; customer, service, node, whitelisted-IP and
+    custom-domain data are never part of this contract.
+  contact:
+    name: MSSV
+    url: https://www.mssv.ir
+  license:
+    name: Apache-2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+externalDocs:
+  description: MSSV official website
+  url: https://www.mssv.ir
+servers:
+  - url: https://api.mssv.ir
+    description: MSSV public API edge
+security: []
+tags:
+  - name: Public Radio
+paths:
+  /radio/endpoints:
+    get:
+      tags: [Public Radio]
+      operationId: listPublicRadioEndpoints
+      summary: List public Radio endpoints
+      description: >-
+        Returns only currently public Radio endpoint filenames. No hostname,
+        protocol, URL, display label, listener count, service/customer/account
+        identifier, node identifier, IP address or topology metadata is returned.
+      responses:
+        '200':
+          description: Public endpoint filenames
+          headers:
+            Cache-Control:
+              description: Short public cache policy.
+              schema: {type: string}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  pattern: '^[A-Za-z0-9_-]{1,80}\.mp3$'
+              examples:
+                current:
+                  value:
+                    - station-one.mp3
+                    - station-two.mp3
+        '403':
+          description: Direct-origin or otherwise untrusted edge request rejected
+        '404':
+          description: Route not available on this edge
+  /radio/listeners:
+    get:
+      tags: [Public Radio]
+      operationId: getPublicRadioListeners
+      summary: Get public Radio listener counts
+      description: >-
+        Returns the current public total plus counts for API-visible endpoints.
+        It does not expose source/whitelisted IPs, custom domains, service IDs,
+        customer/account identifiers, node identifiers or private topology.
+      responses:
+        '200':
+          description: Public listener aggregate
+          headers:
+            Cache-Control:
+              description: Short public cache policy.
+              schema: {type: string}
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [total, endpoints]
+                properties:
+                  total:
+                    type: integer
+                    minimum: 0
+                  endpoints:
+                    type: object
+                    additionalProperties:
+                      type: integer
+                      minimum: 0
+              examples:
+                current:
+                  value:
+                    total: 12
+                    endpoints:
+                      station-one.mp3: 7
+                      station-two.mp3: 5
+        '403':
+          description: Direct-origin or otherwise untrusted edge request rejected
+        '404':
+          description: Route not available on this edge
