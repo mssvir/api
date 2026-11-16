@@ -37,6 +37,8 @@ Authentication failures are distinguished from authentication-backend failures: 
 
 All extension writes require `Idempotency-Key`. A key is claimed before the domain side effect. JSON object keys are canonicalized before request hashing, so reordering object properties does not create a false idempotency conflict. Completed responses are replayed for 24 hours. A claim that remains pending after an uncertain outcome is **not** automatically expired or re-executed; operators reconcile it and clients must keep the same key instead of forcing a second side effect.
 
-## Rollout state
+## Current availability and safe integration
 
-Promotion requires a fresh Main source/DB contract capture, MariaDB concurrency/crash tests for the claim table, a bounded release candidate diff, additive migration, cutover/rollback assets, authenticated ownership smoke tests and independent post-deploy verification. Until those gates pass, integrations must not assume the extension operations exist on `api.mssv.ir`.
+The 12 operations listed above are part of the **accepted current Production 53-operation Machine API contract**. Their presence in the API contract does not guarantee every operation is available for every service: scopes, account ownership, service component, current state and permission checks still apply. Use the documented capability and read endpoints before offering a write in your integration. A `404` for an unowned service does not reveal whether another account's resource exists; `422`, `409` and `503` must be handled as documented failures, not silently retried with new idempotency keys.
+
+Customer-managed TeaSpeak DNS subdomain/SRV provisioning is **not** one of these 12 operations and must not be guessed from the port-management routes. Public documentation will list it only after the corresponding API endpoint has actually been accepted in Production.

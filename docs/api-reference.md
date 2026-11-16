@@ -66,6 +66,8 @@ Typical order fields:
 
 `GET /services/{id}` returns service information, masked custom fields, recent usage samples, automation policy and `available_actions`.
 
+`GET /services/{id}/history` is a paginated, account-owned `services:read` endpoint. The operational event history can be limited by the administrator's configured retention period (currently default **90 days**, permitted **1–3650 days**). Clients must not interpret an empty page or absent older events as proof that no earlier action occurred. This operational history is **not** the financial ledger or a complete accounting export; use the relevant billing/invoice/wallet endpoints for financial records.
+
 Runtime actions depend on service component and current runtime state. Supported actions can include `start`, `stop`, `restart`, `reset`, `repair` and `change_password`. Always use the returned `available_actions` instead of assuming an action is available.
 
 Example action request:

@@ -4,6 +4,13 @@ All notable public MSSV API documentation changes are recorded here.
 
 The authenticated Machine API is served from `https://api.mssv.ir/v1/`. Intentionally minimal unauthenticated public reads, when documented, live outside `/v1/` on the same API hostname.
 
+## 2026-11-17 — Current-contract consumer documentation alignment
+
+- Clarified that service operational history can be limited by the administrator's retention setting (default 90 days, configurable 1–3650 days); historical absence must not be treated as evidence that an operation never occurred.
+- Added read-only cURL examples for account-owned service history and TeaSpeak port state using existing endpoints.
+- Corrected the extension page's obsolete pre-release language; the 12 TeaSpeak/Radio extensions are already part of the current accepted 53-operation Production contract.
+- No endpoints, scopes, idempotency rules, response schema, OpenAPI contract version (`1.4.0`) or server behavior were changed by this documentation-only update. DNS/SRV provisioning is not yet a public Machine API operation.
+
 ## 2026-10-16 — Public Radio read split
 
 - Added `GET https://api.mssv.ir/radio/endpoints` as the canonical unauthenticated public Radio directory; its response is a JSON array of endpoint `.mp3` filenames only.

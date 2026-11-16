@@ -41,6 +41,26 @@ curl -sS "$MSSV_API_BASE/services/123" \
   -H 'Accept: application/json'
 ```
 
+## Read a service's recent operational history
+
+Use a service ID **owned by your token's account**; `123` below is only an example. Older operation events may no longer be present after the configured retention period. This read request does not change the service.
+
+```bash
+curl -sS "$MSSV_API_BASE/services/123/history?page=1&per_page=20" \
+  -H "Authorization: Bearer $MSSV_API_TOKEN" \
+  -H 'Accept: application/json'
+```
+
+## Read TeaSpeak port state
+
+This only reads current public port state; it does not request a port change or create a DNS record.
+
+```bash
+curl -sS "$MSSV_API_BASE/services/123/teaspeak/ports" \
+  -H "Authorization: Bearer $MSSV_API_TOKEN" \
+  -H 'Accept: application/json'
+```
+
 ## Restart a service
 
 Only send an action that appears in the service's `available_actions` response.

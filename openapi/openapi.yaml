@@ -145,6 +145,13 @@ paths:
     get:
       tags: [Services]
       summary: Get service history
+      description: >-
+        Paginated history for a service owned by the authenticated token account.
+        Operational events may be limited by the administrator-configured
+        retention period (default 90 days, valid 1 to 3650 days). An empty or
+        shortened history does not prove no older operation occurred. This is
+        not the financial accounting ledger. No additional API operation is
+        introduced by this description.
       x-mssv-scope: services:read
       parameters:
         - {$ref: '#/components/parameters/ServiceId'}
