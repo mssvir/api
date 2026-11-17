@@ -1,0 +1,427 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "MSSV 10.5.62 candidate — Public Radio directory and history",
+    "version": "10.5.62-draft",
+    "description": "PROPOSED, NOT PRODUCTION. A source-only draft from MSSV private source branch feature/mssv-u10562-public-radio-api-20261117, readonly 10.5.61 inventories, and isolated tests. Do not advertise these paths as operational until independently verified production 62 release."
+  },
+  "servers": [
+    {
+      "url": "https://api.mssv.ir"
+    }
+  ],
+  "x-mssv-lifecycle": "proposed-source-only-not-live",
+  "tags": [
+    {
+      "name": "Public Radio",
+      "description": "Anonymous, read-only and rate-limited public projections only"
+    }
+  ],
+  "paths": {
+    "/radio/directory": {
+      "get": {
+        "tags": [
+          "Public Radio"
+        ],
+        "summary": "List active public Radio endpoint files and Persian display names",
+        "operationId": "radioDirectoryPublic62",
+        "security": [],
+        "description": "No token required; a valid token is optional and never expands the public projection. Only active endpoints enabled for both site and API visibility, recently observed. Never includes private IPs/domains/account topology. Proposal: 90 requests/min per client IP.",
+        "responses": {
+          "200": {
+            "description": "Current visible public Radio directory",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "description": "Public anonymous CORS, no Access-Control-Allow-Credentials",
+                "schema": {
+                  "type": "string",
+                  "const": "*"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DirectoryResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited; Retry-After: 60 seconds",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "description": "Public anonymous CORS, no Access-Control-Allow-Credentials",
+                "schema": {
+                  "type": "string",
+                  "const": "*"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Public directory source temporarily unavailable",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "description": "Public anonymous CORS, no Access-Control-Allow-Credentials",
+                "schema": {
+                  "type": "string",
+                  "const": "*"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "options": {
+        "tags": [
+          "Public Radio"
+        ],
+        "summary": "CORS preflight for public directory",
+        "operationId": "preflightPublicRadioDirectory62",
+        "security": [],
+        "responses": {
+          "204": {
+            "description": "GET, OPTIONS allowed. Authorization and Accept request headers permitted; browser credentials are not authorized by CORS."
+          }
+        }
+      }
+    },
+    "/radio/history": {
+      "get": {
+        "tags": [
+          "Public Radio"
+        ],
+        "summary": "Real historical public Radio listener samples in eleven windows",
+        "operationId": "radioHistoryPublic62",
+        "security": [],
+        "description": "No token required. Optional valid token does not reveal private IP, domain or service data. All samples are observed rather than invented, and incomplete windows set history_partial=true. Proposal: 20 requests/min per client IP.",
+        "parameters": [
+          {
+            "name": "range",
+            "in": "query",
+            "required": false,
+            "description": "Default 24h",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1h",
+                "3h",
+                "6h",
+                "12h",
+                "24h",
+                "1w",
+                "1mo",
+                "3mo",
+                "6mo",
+                "1y",
+                "2y"
+              ],
+              "default": "24h"
+            }
+          },
+          {
+            "name": "endpoint",
+            "in": "query",
+            "required": false,
+            "description": "Empty or omitted means total public visible stations",
+            "schema": {
+              "type": "string",
+              "pattern": "^$|^[A-Za-z0-9_-]{1,80}\\.mp3$",
+              "default": ""
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Genuine public history and window metadata",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "description": "Public anonymous CORS, no Access-Control-Allow-Credentials",
+                "schema": {
+                  "type": "string",
+                  "const": "*"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HistoryResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid range, endpoint or extra query parameter",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "description": "Public anonymous CORS, no Access-Control-Allow-Credentials",
+                "schema": {
+                  "type": "string",
+                  "const": "*"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited; Retry-After: 60 seconds",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "description": "Public anonymous CORS, no Access-Control-Allow-Credentials",
+                "schema": {
+                  "type": "string",
+                  "const": "*"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "History data unavailable",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "description": "Public anonymous CORS, no Access-Control-Allow-Credentials",
+                "schema": {
+                  "type": "string",
+                  "const": "*"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "options": {
+        "tags": [
+          "Public Radio"
+        ],
+        "summary": "CORS preflight for public history",
+        "operationId": "preflightPublicRadioHistory62",
+        "security": [],
+        "responses": {
+          "204": {
+            "description": "Read-only public preflight; GET and OPTIONS only."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "ok",
+          "error"
+        ],
+        "properties": {
+          "ok": {
+            "const": false
+          },
+          "error": {
+            "type": "string"
+          }
+        }
+      },
+      "DirectoryRow": {
+        "type": "object",
+        "required": [
+          "endpoint",
+          "display_name"
+        ],
+        "properties": {
+          "endpoint": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,80}\\.mp3$"
+          },
+          "display_name": {
+            "type": "string",
+            "maxLength": 100
+          }
+        },
+        "additionalProperties": false
+      },
+      "DirectoryResponse": {
+        "type": "object",
+        "required": [
+          "ok",
+          "directory"
+        ],
+        "properties": {
+          "ok": {
+            "const": true
+          },
+          "directory": {
+            "type": "array",
+            "maxItems": 256,
+            "items": {
+              "$ref": "#/components/schemas/DirectoryRow"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "HistoryPoint": {
+        "type": "object",
+        "required": [
+          "ts",
+          "total"
+        ],
+        "properties": {
+          "ts": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Unix timestamp of a genuine recorded sample"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "samples": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "endpoints": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "ips": {
+            "type": "array",
+            "maxItems": 0
+          },
+          "domains": {
+            "type": "array",
+            "maxItems": 0
+          }
+        },
+        "additionalProperties": false
+      },
+      "HistoryResponse": {
+        "type": "object",
+        "required": [
+          "ok",
+          "window",
+          "window_seconds",
+          "sample_seconds",
+          "timeline",
+          "history_partial",
+          "history_source",
+          "public_only",
+          "selected_endpoint",
+          "live",
+          "directory"
+        ],
+        "properties": {
+          "ok": {
+            "const": true
+          },
+          "window": {
+            "type": "string",
+            "enum": [
+              "1h",
+              "3h",
+              "6h",
+              "12h",
+              "24h",
+              "1w",
+              "1mo",
+              "3mo",
+              "6mo",
+              "1y",
+              "2y"
+            ]
+          },
+          "window_seconds": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "sample_seconds": {
+            "type": "integer",
+            "minimum": 60
+          },
+          "timeline": {
+            "type": "array",
+            "maxItems": 900,
+            "items": {
+              "$ref": "#/components/schemas/HistoryPoint"
+            }
+          },
+          "history_from": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1
+          },
+          "history_partial": {
+            "type": "boolean"
+          },
+          "history_source": {
+            "type": "string",
+            "enum": [
+              "minute_cache",
+              "hourly_archive_since_activation"
+            ]
+          },
+          "public_only": {
+            "const": true
+          },
+          "selected_endpoint": {
+            "type": "string",
+            "description": "Empty for total across visible public stations"
+          },
+          "directory": {
+            "type": "array",
+            "maxItems": 256,
+            "items": {
+              "$ref": "#/components/schemas/DirectoryRow"
+            }
+          },
+          "live": {
+            "type": "object",
+            "description": "Public-only snapshot projected to allowed endpoints; never includes user, account, permitted IP or private domain data."
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}
