@@ -109,3 +109,13 @@ time windows. Design approval cannot replace real device tests.
    parity and independently verified scope/IP, security, cache and PWA behavior.
 
 No provider keys, customer tokens or production secrets belong in this document.
+
+## Verified actual 10.5.61 source/route inventory — 2026-11-17
+
+[Read-only existing Main self-hosted run 44153052545](https://github.com/mssvir/mssv_private/actions/runs/44153052545) **SUCCESS**. It observed actual installed Core **10.5.61**, 406 PHP router declarations in `src/Core/App.php` and no root-level public manifest/service-worker filename candidates. It only read exact named source files, never customer rows, credentials, token values or Production-mutating paths.
+
+Read-only source counts (literal signatures, **not** proof that every call is an AJAX operation): `public/assets/app.js` 6 `fetch(`, `mssv-radio-v13.js` 2, `mssv-radio-u61.js` 2, and `views/client/service.php` 7. These currently include same-origin Radio operations; no new `api.mssv.ir` calls were observed inside those JavaScript assets. PublicSiteController already has APCu/Redis source markers, but a source marker is not evidence of optimal cache behavior across all pages.
+
+**Version 62 entry gate:** Complete route/caller classification, ownership, response sensitivity and caching contracts before migrating a single AJAX call. Existing public `GET /radio/endpoints` and `GET /radio/listeners` remain the only documented accepted no-token Radio reads. Do not publish new history, display-name or token-optional endpoints as already available. Each new public route must prove anonymous rate-limit 429+Retry-After and separately prove authenticated token+IP enforcement for private data.
+
+The current `mssvir/api` default-branch GitHub workflow `.github/workflows/api-docs-contract.yml` still specifies `ubuntu-latest`; **do not invoke that GitHub-hosted workflow**. Before any PR or main push to `mssvir/api`, replace its trigger/runner policy with a trusted available self-hosted source-only validation path, or keep documentation edits only on the inert feature branch.
