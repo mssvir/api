@@ -148,3 +148,13 @@ This section documents **unshipped** implementation-stage source evidence; publi
 - Critical remaining transport: **API-origin secure HttpOnly browser credential** requires a verified login/CSRF-backed, short-lived session handoff, exact-origin CORS and validated client IP after trusted CDN normalization. The existing Machine API's static-IP Bearer token/Edge aggregate allowlist is a separate contract and must not be bypassed or repurposed for ordinary browser AJAX.
 - This adapter does not mint or cryptographically verify browser tokens, implement replay protection in DB/Redis, or serve requests. No private API endpoint or browser callsite has been migrated; no Production 10.5.62 deployment or public OpenAPI update is authorized by these tests.
 - No hosted CI for `mssvir/api`. Its current `main` remains unchanged.
+
+
+## Stages H/I — proposed one-use browser session handoff and Redis grant store (2026-11-18)
+
+These are **source-only candidate services**, not live endpoints and not additions to the accepted public API OpenAPI file.
+
+- Stage H `mssvir/mssv_private:ops/production/u10562_browser_handoff.php`: first-party POST from a verified `my.mssv.ir` session + CSRF/rate-limited trusted IP produces a 256-bit code, hashed at rest, expiring after 45 seconds. Separate `api.mssv.ir` POST must atomically consume the code and verify the still-active session and matching real IP. The API host, not the browser, issues a `__Host-mssv_api` Secure, HttpOnly, SameSite=Strict, Path=/ cookie with TTL capped by the original login session. The returned PHP object intentionally does not serialize the secret to JSON.
+- Stage H [corrected Self-hosted test 44243654355](https://github.com/mssvir/mssv_private/actions/runs/44243654355) passed **50 fake-store assertions**; the first [44243354211](https://github.com/mssvir/mssv_private/actions/runs/44243354211) failed and identified a source return-type bug, subsequently fixed before the successful retry.
+- Stage I `mssvir/mssv_private:ops/production/u10562_browser_handoff_redis.php`: namespaced `SET NX EX`, atomic Lua get-and-delete for one-use code and bounded, allowlisted JSON record fields, with no real Production Redis access. [44244529487](https://github.com/mssvir/mssv_private/actions/runs/44244529487) passed **31 nonroot fake-Redis assertions**.
+- These flows authorize **customer read only**, and never expand the anonymous public Radio projection, use the existing Machine API bearer/IP allowlist, grant admin cross-owner access or allow billing mutations. Required future backend routes and CORS are distinct from `/v1/` and **do not yet exist**; private API contract must be published only after authenticated browser and isolated Redis concurrency proof plus a verifiable 61→62 release.
