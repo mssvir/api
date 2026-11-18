@@ -166,3 +166,10 @@ These are **source-only candidate services**, not live endpoints and not additio
 - [Read-only actual61 Auth Stage K](https://github.com/mssvir/mssv_private/actions/runs/44247257037) verified exact callable PHP metadata for `Auth::{id,accountId,currentSessionHash}`, `Session::get`, `Csrf::check`, `AdminAccess::can` and `Request::ip`, without exporting live session values or credentials.
 - These results retire the isolated Redis primitive race uncertainty but **not** the real login-session expiry/revocation provider, IP normalization, HTTP exchange, CORS, CSRF, cross-origin cookie browser behavior or API 62 private ownership. A live endpoint must not trust `Auth::currentSessionHash` alone.
 - No public or private new routes were deployed or published as working API. The public API documentation `main` and 53 accepted Machine API operations remain unaffected. Do not enable GitHub-hosted CI.
+
+
+## Stage L — first-party Auth/CSRF issuance adapter (2026-11-18)
+
+The private implementation branch now contains an **unregistered, source-only** `FirstPartyBrowserHandoffIssuer`, matching readonly-verified installed61 signatures `Auth::id/accountId/currentSessionHash` and `Csrf::check(Request)`. It can only initiate the previously designed customer-read one-use grant after POST, exact first-party vhost and Origin, independently normalized trusted IP, an atomic browser-specific rate limit, genuine current-session CSRF, and trusted server-side source-session ledger expiration. No account/session ID from client JSON is accepted.
+
+[Self-hosted 44248290532](https://github.com/mssvir/mssv_private/actions/runs/44248290532) passed 23 fixture assertions and PHP syntax checks. All real implementations of the session expiry/revocation ledger, vhost/IP normalizer, rate budget and HTTP route remain **missing**, and this is not an active login API. The proposed public OpenAPI directory/history paths and accepted 53 Machine operations are unchanged. Do not enable GitHub-hosted CI; no Production 62 deployment has occurred.
